@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+  <title>Go I/O is Fun*!</title>
+  <meta property="og:title" content="Go I/O is Fun*!" />
+  <meta name="twitter:title" content="Go I/O is Fun*!" />
+  <meta name="description" content="* For certain definitions of fun.
+One of my favorite parts of Go is the interface type. There has been sufficient hate recently about the missing generics but, to be honest, I haven&rsquo;t missed them one bit. One of the reasons I haven&rsquo;t missed them is the use of interfaces in go, especially in the standard library. The io package is a great example.
+Whether you open a file, read from a network, or request a web page, they all implement the io.">
+  <meta property="og:description" content="* For certain definitions of fun.
+One of my favorite parts of Go is the interface type. There has been sufficient hate recently about the missing generics but, to be honest, I haven&rsquo;t missed them one bit. One of the reasons I haven&rsquo;t missed them is the use of interfaces in go, especially in the standard library. The io package is a great example.
+Whether you open a file, read from a network, or request a web page, they all implement the io.">
+  <meta name="twitter:description" content="* For certain definitions of fun.
+One of my favorite parts of Go is the interface type. There has been sufficient hate recently about the missing generics but, to be honest, I haven&rsquo;t missed …">
+  <meta name="author" content=""/>
+  <meta name="twitter:card" content="summary" />
+  <meta property="og:url" content="https://icub3d.github.io/post/go-io/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Non Impediti Ratione Cogitationis" />
+
+  <meta name="generator" content="Hugo 0.21" />
+  <link rel="canonical" href="https://icub3d.github.io/post/go-io/" />
+  <link rel="alternate" href="https://icub3d.github.io/index.xml" type="application/rss+xml" title="Non Impediti Ratione Cogitationis">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.css" integrity="sha384-wITovz90syo1dJWVh32uuETPVEtGigN07tkttEqPv+uR2SE/mbQcG7ATL28aI9H0" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://icub3d.github.io/css/main.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" />
+  <link rel="stylesheet" href="https://icub3d.github.io/css/pygment_highlights.css" />
+  <link rel="stylesheet" href="https://icub3d.github.io/css/highlight.min.css" />
+
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'UA-37698200-1', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='//www.google-analytics.com/analytics.js'></script>
+
+</head>
+
+  <body>
+    <nav class="navbar navbar-default navbar-fixed-top navbar-custom">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="https://icub3d.github.io/">Non Impediti Ratione Cogitationis</a>
+    </div>
+
+    <div class="collapse navbar-collapse" id="main-navbar">
+      <ul class="nav navbar-nav navbar-right">
+        
+
+        
+
+        
+      </ul>
+    </div>
+
+    <div class="avatar-container">
+      <div class="avatar-img-border">
+        
+      </div>
+    </div>
+
+  </div>
+</nav>
+
+
+
+
+    
+  
+  
+  
+
+
+
+
+  
+
+  <header class="header-section ">
+    
+    <div class="intro-header no-img">
+      
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+            <div class="post-heading">
+              <h1>Go I/O is Fun*!</h1>
+                
+                
+                  <span class="post-meta">
+  Posted on January 25, 2014
+  
+</span>
+
+
+                
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+
+    
+<div class="container">
+  <div class="row">
+    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+      <article role="main" class="blog-post">
+        <p>* For certain definitions of fun.</p>
+
+<p>One of my favorite parts of <a href="http://golang.org/">Go</a> is the interface
+type. There has been sufficient hate recently about the missing
+generics but, to be honest, I haven&rsquo;t missed them one bit. One of the
+reasons I haven&rsquo;t missed them is the use of interfaces in go,
+especially in the standard library. The
+<a href="http://golang.org/pkg/io/">io</a> package is a great example.</p>
+
+<p>Whether you <a href="http://golang.org/pkg/os/#Open">open a file</a>,
+<a href="http://golang.org/pkg/net/#Conn">read from a network</a>, or
+<a href="http://golang.org/pkg/net/http/#Response">request a web page</a>, they
+all implement the <a href="http://golang.org/pkg/io/#Reader">io.Reader</a>
+interface. This means that your code can be <em>generic</em> in the sense
+that the source of the data is irrelevant.</p>
+
+<p>The notion of interfaces allow for very interesting design
+patterns. One pattern that I&rsquo;ve found useful lately is to wrap an
+interface with some logic, but provide the same interface so that
+existing code doesn&rsquo;t need to change. Let me give you an example of
+what I mean.</p>
+
+<p>Suppose that you already have an application that POSTs data to a web
+server for permanent storage. Right now your code accepts an
+<em>io.Reader</em> and uses that as the data being POSTed. Now lets say you
+want encrypt that data beforehand. One option would be to encrypt the
+data to another file and then use that file&rsquo;s <em>io.Reader</em> to send the
+data.</p>
+
+<p>It&rsquo;s not a bad solution, but a more elegant solution would be to
+encrypt the data on the fly before it&rsquo;s sent to the server. There
+would be little overhead and no additional disk space or I/O would be
+required. We can do this because
+<a href="http://golang.org/pkg/net/http/#NewRequest">http.Request</a> accepts any
+<em>io.Reader</em>. Our encryption interface need only implement the <em>io.Reader</em>
+interface and then the <em>http.Request</em> will happily use it.</p>
+
+<p>This has become common enough for me that I&rsquo;ve written a library
+called <a href="https://github.com/icub3d/wrapio">wrapio</a>. It wraps a given
+<em>io.Reader</em> or <em>io.Writer</em> with some mutator or inspector. As data is
+passed through, it can be manipulated or checked without making huge
+copies in memory or disk.</p>
+
+<p>A working example of this can be found at this
+<a href="https://gist.github.com/icub3d/8610568">gist</a>. Let&rsquo;s walk through
+some of the code.</p>
+
+<pre><code>block = wrapio.NewBlockReader(bme.BlockSize(), in)
+last = wrapio.NewLastFuncReader(pad, block)
+crypt = wrapio.NewFuncReader(func(p []byte) {
+	bme.CryptBlocks(p, p)
+}, last)
+</code></pre>
+
+<p>First, since we are using AES to encrypt the data, we need to do some
+things before we do the actual encryption. Block mode ciphers can only
+encrypt blocks whose length is a multiple of the block size. We use
+the <em>NewBlockReader</em> to wrap the input around another <em>io.Reader</em> that
+only sends data in full blocks, except possibly the last block. To
+accommodate that last block being smaller than the block size, we use
+the <em>NewLastFuncReader</em> to call the <em>pad</em> function on the last
+block. It basically looks at the last block and adds some padding to
+the end of the block if necessary. Finally, we wrap that <em>io.Reader</em>
+in another <em>io.Reader</em> that does the encryption before passing it
+along.</p>
+
+<p>In just a few lines of code we&rsquo;ve implemented an on-the-fly encryption
+mechanism that can send the data anywhere an io.Reader is
+used. Existing parts of your application that use an io.Reader can
+generally accept it without any changes.</p>
+
+<p>What if we are getting the data back from the server and want to
+decrypt it? No problem, we just do the same with the <em>io.Reader</em> we
+get back from the response body.</p>
+
+<pre><code>block = wrapio.NewBlockReader(bmd.BlockSize(), in)
+crypt = wrapio.NewFuncReader(func(p []byte) {
+	bmd.CryptBlocks(p, p)
+}, block)
+last = wrapio.NewLastFuncReader(unpad, crypt)
+</code></pre>
+
+<p>The order is slightly different because we want to decrypt the block
+before we remove the padding from the end of the data.</p>
+
+<p>I can&rsquo;t vouch for the effectiveness of the encryption being done here,
+but I think it gives you a good idea of how powerful interfaces are. By
+wrapping the I/O interfaces you can do just about anything with your
+data as it&rsquo;s being passed through. Functions like
+<a href="http://golang.org/pkg/io/ioutil/#ReadAll">ioutil.ReadAll</a> and
+<a href="http://golang.org/pkg/io/#Copy">io.Copy</a> become extremely useful and
+in some of my cases have become the only function call in the main
+loops of my programs.</p>
+
+<p>As always, feedback, pull request, comments, etc. are welcome. Enjoy
+your I/O!</p>
+
+      </article>
+
+      <ul class="pager blog-pager">
+        
+          <li class="previous">
+            <a href="https://icub3d.github.io/post/doozer-groupcache/" data-toggle="tooltip" data-placement="top" title="Dynamic Server Management With Doozer and Groupcache">&larr; Previous Post</a>
+          </li>
+        
+        
+          <li class="next">
+            <a href="https://icub3d.github.io/post/unifi-controller-arch-linux-arm/" data-toggle="tooltip" data-placement="top" title="Installing UniFi Controller on Arch Linux | ARM">Next Post &rarr;</a>
+          </li>
+        
+      </ul>
+
+      
+
+    </div>
+  </div>
+</div>
+
+    <footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <ul class="list-inline text-center footer-links">
+          
+          
+        </ul>
+        <p class="credits copyright text-muted">
+          
+          &nbsp;&bull;&nbsp;
+          2016
+
+          
+            &nbsp;&bull;&nbsp;
+            <a href="https://icub3d.github.io/">Non Impediti Ratione Cogitationis</a>
+          
+        </p>
+        
+        <p class="credits theme-by text-muted">
+          <a href="http://gohugo.io">Hugo v0.21</a> powered &nbsp;&bull;&nbsp; Theme by <a href="http://deanattali.com/beautiful-jekyll/">Beautiful Jekyll</a> adapted to <a href="https://github.com/halogenica/beautifulhugo">Beautiful Hugo</a>
+          
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.js" integrity="sha384-/y1Nn9+QQAipbNQWU65krzJralCnuOasHncUFXGkdwntGeSvQicrYkiUBwsgUqc1" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/contrib/auto-render.min.js" integrity="sha384-dq1/gEHSxPZQ7DdrM82ID4YVol9BYyU7GbWlIwnwyPzotpoc57wDw/guX8EaYGPx" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="https://icub3d.github.io/js/main.js"></script>
+<script src="https://icub3d.github.io/js/highlight.min.js"></script>
+<script> hljs.initHighlightingOnLoad(); </script>
+<script> renderMathInElement(document.body); </script>
+
+
+
+
+
+  </body>
+</html>
+

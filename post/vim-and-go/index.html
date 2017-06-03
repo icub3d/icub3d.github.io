@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+  <title>Vim and Go</title>
+  <meta property="og:title" content="Vim and Go" />
+  <meta name="twitter:title" content="Vim and Go" />
+  <meta name="description" content="I grew up on Emacs and Bash. I love them dearly (I have the pinky fingers to prove it). I&rsquo;m not so blinded by my faith in them though that I won&rsquo;t occasionally try new things. I&rsquo;ve heard a lot of good things about Zsh and I&rsquo;ve found myself connecting to many a servers that have Vim installed but not Emacs. So, I thought I&rsquo;d give them a try.
+Of course, my new pet programming language is Go, so I thought I&rsquo;d try and get some basic functionality for Go working with Vim.">
+  <meta property="og:description" content="I grew up on Emacs and Bash. I love them dearly (I have the pinky fingers to prove it). I&rsquo;m not so blinded by my faith in them though that I won&rsquo;t occasionally try new things. I&rsquo;ve heard a lot of good things about Zsh and I&rsquo;ve found myself connecting to many a servers that have Vim installed but not Emacs. So, I thought I&rsquo;d give them a try.
+Of course, my new pet programming language is Go, so I thought I&rsquo;d try and get some basic functionality for Go working with Vim.">
+  <meta name="twitter:description" content="I grew up on Emacs and Bash. I love them dearly (I have the pinky fingers to prove it). I&rsquo;m not so blinded by my faith in them though that I won&rsquo;t occasionally try new things. I&rsquo;ve …">
+  <meta name="author" content=""/>
+  <meta name="twitter:card" content="summary" />
+  <meta property="og:url" content="https://icub3d.github.io/post/vim-and-go/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Non Impediti Ratione Cogitationis" />
+
+  <meta name="generator" content="Hugo 0.21" />
+  <link rel="canonical" href="https://icub3d.github.io/post/vim-and-go/" />
+  <link rel="alternate" href="https://icub3d.github.io/index.xml" type="application/rss+xml" title="Non Impediti Ratione Cogitationis">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.css" integrity="sha384-wITovz90syo1dJWVh32uuETPVEtGigN07tkttEqPv+uR2SE/mbQcG7ATL28aI9H0" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://icub3d.github.io/css/main.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" />
+  <link rel="stylesheet" href="https://icub3d.github.io/css/pygment_highlights.css" />
+  <link rel="stylesheet" href="https://icub3d.github.io/css/highlight.min.css" />
+
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'UA-37698200-1', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='//www.google-analytics.com/analytics.js'></script>
+
+</head>
+
+  <body>
+    <nav class="navbar navbar-default navbar-fixed-top navbar-custom">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="https://icub3d.github.io/">Non Impediti Ratione Cogitationis</a>
+    </div>
+
+    <div class="collapse navbar-collapse" id="main-navbar">
+      <ul class="nav navbar-nav navbar-right">
+        
+
+        
+
+        
+      </ul>
+    </div>
+
+    <div class="avatar-container">
+      <div class="avatar-img-border">
+        
+      </div>
+    </div>
+
+  </div>
+</nav>
+
+
+
+
+    
+  
+  
+  
+
+
+
+
+  
+
+  <header class="header-section ">
+    
+    <div class="intro-header no-img">
+      
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+            <div class="post-heading">
+              <h1>Vim and Go</h1>
+                
+                
+                  <span class="post-meta">
+  Posted on January 9, 2013
+  
+</span>
+
+
+                
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+
+    
+<div class="container">
+  <div class="row">
+    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+      <article role="main" class="blog-post">
+        <p>I grew up on <a href="http://www.gnu.org/software/emacs/">Emacs</a> and
+<a href="http://www.gnu.org/software/bash/">Bash</a>. I love them dearly (I have
+the pinky fingers to prove it). I&rsquo;m not so blinded by my faith in them
+though that I won&rsquo;t occasionally try new things. I&rsquo;ve heard a lot of
+good things about <a href="http://www.zsh.org/">Zsh</a> and I&rsquo;ve found myself
+connecting to many a servers that have <a href="http://www.vim.org/">Vim</a>
+installed but not Emacs. So, I thought I&rsquo;d give them a try.</p>
+
+<p>Of course, my new pet programming language is
+<a href="http://golang.org/">Go</a>, so I thought I&rsquo;d try and get some basic
+functionality for Go working with Vim. I&rsquo;m pleased to say the process
+was rather simple, but some of the documentation I found online was
+somewhat outdated (the readmes were up to date but hard to find). I
+thought I&rsquo;d share what I did, if nothing else so I can remember if I
+ever have to do it again.</p>
+
+<p>First, if you are like me and don&rsquo;t have Vim installed on your system,
+you should get that setup. On
+<a href="https://www.archlinux.org/">Arch Linux</a>, you can:</p>
+
+<pre><code>sudo pacman -S gvim
+</code></pre>
+
+<p>This will install the GUI version of Vim as well as the console
+version. Next, you&rsquo;ll want to update your <em>~/.vimrc</em> file to use Go&rsquo;s
+Vim tools. They come standard with the installation, you just need to
+setup Vim to use them. Append the following to your <em>~/.vimrc</em> file:</p>
+
+<pre><code>set rtp+=$GOROOT/misc/vim
+filetype plugin indent on
+syntax on
+</code></pre>
+
+<p>You&rsquo;ll want to replace <em>$GOROOT</em> with the path to Go&rsquo;s share items (in
+Arch Linux, it is <em>/usr/share/go</em>). This will give you fairly useful
+features like syntax highlighting proper indentation, and
+documentation.</p>
+
+<p><img src="{{site.url}}/img/vim-godoc.png" alt="vim an godoc" /></p>
+
+<p>I was also interested in auto-completion as I use it quite often in
+Emacs. Fortunately, <a href="https://github.com/nsf/gocode">Gocode</a> provides
+functionality for vim as well. Setting it up was simple. If you
+haven&rsquo;t used Gocode before, you&rsquo;ll need to install it&rsquo;s daemon:</p>
+
+<pre><code>go get -u github.com/nsf/gocode
+</code></pre>
+
+<p>If you don&rsquo;t have your *$GOPATH*s bin folder in your path, you&rsquo;ll need
+to add that. My <em>.zshrc</em> file has these lines that do just that:</p>
+
+<pre><code>export GOPATH=&quot;${HOME}/go&quot;
+export GOBIN=&quot;${GOPATH}/bin&quot;
+export PATH=&quot;${PATH}:${GOBIN}&quot;
+</code></pre>
+
+<p>With those steps completed, run the setup script provided:</p>
+
+<pre><code>cd $GOPATH/src/github.com/nsf/gocode/vim
+./update.bash
+</code></pre>
+
+<p>Finally, append the following to your <em>~/.vimrc</em>:</p>
+
+<pre><code>filetype plugin on
+</code></pre>
+
+<p>Now, when you are typing a command and aren&rsquo;t quite sure what should
+come next or want to see what the function parameters are, simply use
+&lt;C-x&gt;&lt;C-o&gt; and Gocode will give you a list of possibly
+completion commands. If you install packages, it will even
+auto-complete from those (assuming they are in your <em>$GOPATH/pkg</em>
+directory).</p>
+
+<p><img src="{{site.url}}/img/gocode.png" alt="gocode" /></p>
+
+<p>So far, I have been impressed with how Vim and Go interact. It was
+fairly simple to setup considering I haven&rsquo;t ever used Vim except for
+the most basic viewing and editing. I&rsquo;m not ready to leave Emacs just
+yet, but Vim and Go have certainly been fun and I&rsquo;ll keep at it for a
+while to see how close I can get to my keyboard-fu with Emacs.</p>
+
+<p>If you have other cool things you are doing with Vim and Go that you
+think would impress me, let me know! I&rsquo;m still new to Vim, so I&rsquo;d love
+any feedback.</p>
+
+      </article>
+
+      <ul class="pager blog-pager">
+        
+          <li class="previous">
+            <a href="https://icub3d.github.io/post/private-git-repos-and-go/" data-toggle="tooltip" data-placement="top" title="Private Git Repos And Go">&larr; Previous Post</a>
+          </li>
+        
+        
+          <li class="next">
+            <a href="https://icub3d.github.io/post/go-app-do-you-read-me/" data-toggle="tooltip" data-placement="top" title="Go App, Do You Read Me?">Next Post &rarr;</a>
+          </li>
+        
+      </ul>
+
+      
+
+    </div>
+  </div>
+</div>
+
+    <footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <ul class="list-inline text-center footer-links">
+          
+          
+        </ul>
+        <p class="credits copyright text-muted">
+          
+          &nbsp;&bull;&nbsp;
+          2016
+
+          
+            &nbsp;&bull;&nbsp;
+            <a href="https://icub3d.github.io/">Non Impediti Ratione Cogitationis</a>
+          
+        </p>
+        
+        <p class="credits theme-by text-muted">
+          <a href="http://gohugo.io">Hugo v0.21</a> powered &nbsp;&bull;&nbsp; Theme by <a href="http://deanattali.com/beautiful-jekyll/">Beautiful Jekyll</a> adapted to <a href="https://github.com/halogenica/beautifulhugo">Beautiful Hugo</a>
+          
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.js" integrity="sha384-/y1Nn9+QQAipbNQWU65krzJralCnuOasHncUFXGkdwntGeSvQicrYkiUBwsgUqc1" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/contrib/auto-render.min.js" integrity="sha384-dq1/gEHSxPZQ7DdrM82ID4YVol9BYyU7GbWlIwnwyPzotpoc57wDw/guX8EaYGPx" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="https://icub3d.github.io/js/main.js"></script>
+<script src="https://icub3d.github.io/js/highlight.min.js"></script>
+<script> hljs.initHighlightingOnLoad(); </script>
+<script> renderMathInElement(document.body); </script>
+
+
+
+
+
+  </body>
+</html>
+

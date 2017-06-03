@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  
+  <url>
+    <loc>https://icub3d.github.io/post/private-networks-nginx/</loc>
+    <lastmod>2016-03-10T13:32:09-06:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://icub3d.github.io/post/private-dev-vpn/</loc>
+    <lastmod>2016-02-19T13:32:09-06:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://icub3d.github.io/post/unifi-controller-arch-linux-arm/</loc>
+    <lastmod>2016-01-28T13:32:09-06:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://icub3d.github.io/post/go-io/</loc>
+    <lastmod>2014-01-25T13:32:09-06:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://icub3d.github.io/post/doozer-groupcache/</loc>
+    <lastmod>2013-11-16T13:32:09-06:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://icub3d.github.io/post/godoc-systemd/</loc>
+    <lastmod>2013-05-20T13:32:09-06:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://icub3d.github.io/post/dont-reinvent-the-wheel/</loc>
+    <lastmod>2013-05-05T13:32:09-06:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://icub3d.github.io/post/hardcore-google-communicating-angularjs/</loc>
+    <lastmod>2013-03-12T13:32:09-06:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://icub3d.github.io/post/hardcore-google-communicating-go/</loc>
+    <lastmod>2013-02-16T13:32:09-06:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://icub3d.github.io/post/hardcore-google-unit-testing/</loc>
+    <lastmod>2013-02-10T13:32:09-06:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://icub3d.github.io/post/go-cross-compilers-linux/</loc>
+    <lastmod>2013-01-31T13:32:09-06:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://icub3d.github.io/post/goblog/</loc>
+    <lastmod>2013-01-29T13:32:09-06:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://icub3d.github.io/post/go-app-do-you-read-me/</loc>
+    <lastmod>2013-01-17T13:32:09-06:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://icub3d.github.io/post/vim-and-go/</loc>
+    <lastmod>2013-01-09T13:32:09-06:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://icub3d.github.io/post/private-git-repos-and-go/</loc>
+    <lastmod>2012-12-23T13:32:09-06:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://icub3d.github.io/post/america-is-falling-for-it/</loc>
+    <lastmod>2012-10-23T13:32:09-06:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://icub3d.github.io/post/every-american-should-see-wicked/</loc>
+    <lastmod>2012-08-12T13:32:09-06:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://icub3d.github.io/post/determining-determinism/</loc>
+    <lastmod>2012-08-03T13:32:09-06:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://icub3d.github.io/post/uphill-both-ways/</loc>
+    <lastmod>2012-07-15T13:32:09-06:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://icub3d.github.io/post/shave-and-haircut-two-bits/</loc>
+    <lastmod>2012-07-12T13:32:09-06:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://icub3d.github.io/post/honing-your-inner-command-line/</loc>
+    <lastmod>2012-06-27T13:32:09-06:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://icub3d.github.io/post/go-forth-and-read/</loc>
+    <lastmod>2012-06-23T13:32:09-06:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://icub3d.github.io/post/go-on-an-adventure/</loc>
+    <lastmod>2012-06-19T13:32:09-06:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://icub3d.github.io/post/look-my-im-melding/</loc>
+    <lastmod>2012-06-17T13:32:09-06:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://icub3d.github.io/post/chinese-chars-in-chromium/</loc>
+    <lastmod>2012-06-16T13:32:09-06:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://icub3d.github.io/categories/</loc>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://icub3d.github.io/</loc>
+    <lastmod>2016-03-10T13:32:09-06:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://icub3d.github.io/post/</loc>
+    <lastmod>2016-03-10T13:32:09-06:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://icub3d.github.io/tags/</loc>
+    <priority>0</priority>
+  </url>
+  
+</urlset>

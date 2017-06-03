@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+  <title>Hardcore Google - RESTful Communication With AngularJS</title>
+  <meta property="og:title" content="Hardcore Google - RESTful Communication With AngularJS" />
+  <meta name="twitter:title" content="Hardcore Google - RESTful Communication With AngularJS" />
+  <meta name="description" content="This post is part of a series Hardcore Google. You can find other posts here:
+ Unit Testing App Engine RESTful Web Services In Go RESTful Communication With AngularJS  My history with JavaScript goes back almost 15 years. Back then, working in the browser was was difficult. Eventually tools like jQuery came around and made the work somewhat simpler. It wasn&rsquo;t until I discovered AngularJS though that I felt like JavaScript development had come out of adolescence.">
+  <meta property="og:description" content="This post is part of a series Hardcore Google. You can find other posts here:
+ Unit Testing App Engine RESTful Web Services In Go RESTful Communication With AngularJS  My history with JavaScript goes back almost 15 years. Back then, working in the browser was was difficult. Eventually tools like jQuery came around and made the work somewhat simpler. It wasn&rsquo;t until I discovered AngularJS though that I felt like JavaScript development had come out of adolescence.">
+  <meta name="twitter:description" content="This post is part of a series Hardcore Google. You can find other posts here:
+ Unit Testing App Engine RESTful Web Services In Go RESTful Communication With AngularJS  My history with JavaScript goes …">
+  <meta name="author" content=""/>
+  <meta name="twitter:card" content="summary" />
+  <meta property="og:url" content="https://icub3d.github.io/post/hardcore-google-communicating-angularjs/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Non Impediti Ratione Cogitationis" />
+
+  <meta name="generator" content="Hugo 0.21" />
+  <link rel="canonical" href="https://icub3d.github.io/post/hardcore-google-communicating-angularjs/" />
+  <link rel="alternate" href="https://icub3d.github.io/index.xml" type="application/rss+xml" title="Non Impediti Ratione Cogitationis">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.css" integrity="sha384-wITovz90syo1dJWVh32uuETPVEtGigN07tkttEqPv+uR2SE/mbQcG7ATL28aI9H0" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://icub3d.github.io/css/main.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" />
+  <link rel="stylesheet" href="https://icub3d.github.io/css/pygment_highlights.css" />
+  <link rel="stylesheet" href="https://icub3d.github.io/css/highlight.min.css" />
+
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'UA-37698200-1', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='//www.google-analytics.com/analytics.js'></script>
+
+</head>
+
+  <body>
+    <nav class="navbar navbar-default navbar-fixed-top navbar-custom">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="https://icub3d.github.io/">Non Impediti Ratione Cogitationis</a>
+    </div>
+
+    <div class="collapse navbar-collapse" id="main-navbar">
+      <ul class="nav navbar-nav navbar-right">
+        
+
+        
+
+        
+      </ul>
+    </div>
+
+    <div class="avatar-container">
+      <div class="avatar-img-border">
+        
+      </div>
+    </div>
+
+  </div>
+</nav>
+
+
+
+
+    
+  
+  
+  
+
+
+
+
+  
+
+  <header class="header-section ">
+    
+    <div class="intro-header no-img">
+      
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+            <div class="post-heading">
+              <h1>Hardcore Google - RESTful Communication With AngularJS</h1>
+                
+                
+                  <span class="post-meta">
+  Posted on March 12, 2013
+  
+</span>
+
+
+                
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+
+    
+<div class="container">
+  <div class="row">
+    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+      <article role="main" class="blog-post">
+        <p>This post is part of a series <em>Hardcore Google</em>. You can find other
+posts here:</p>
+
+<ul>
+<li><a href="{% post_url 2013-02-10-hardcore-google-unit-testing %}">Unit Testing App Engine</a></li>
+<li><a href="{% post_url 2013-02-16-hardcore-google-communicating-go %}">RESTful Web Services In Go</a></li>
+<li><a href="{% post_url 2013-03-12-hardcore-google-communicating-angularjs %}">RESTful Communication With AngularJS</a></li>
+</ul>
+
+<p>My history with <a href="http://en.wikipedia.org/wiki/JavaScript">JavaScript</a>
+goes back almost 15 years. Back then, working in the browser was was
+difficult. Eventually tools like <a href="http://jquery.com/">jQuery</a> came
+around and made the work somewhat simpler. It wasn&rsquo;t until I
+discovered <a href="http://angularjs.org/">AngularJS</a> though that I felt like
+JavaScript development had come out of adolescence. AngularJS does a
+great job at solving problems that professional engineers often find
+clunky with JavaScript &emdash; namely separating the
+<a href="http://en.wikipedia.org/wiki/HTML">HTML</a> and
+<a href="http://en.wikipedia.org/wiki/CSS">CSS</a> from the code that drives it,
+properly testing code, and developing rich, dynamic web
+applications. What I love about AngularJS as well is that it doesn&rsquo;t
+doesn&rsquo;t try to get away from using JavaScript but merely enhance it.</p>
+
+<p>Enough gushing though. If you are new to AngularJS, you can find great
+tutorials on their website or you can contact me directly. What I&rsquo;m
+interested in talking about today is how AngularJS interacts with web
+services, particularly
+<a href="http://en.wikipedia.org/wiki/Representational_state_transfer">REST</a>ful
+web services. In my
+<a href="hardcore-google-communicating-go.html">last post</a>, we got
+<a href="http://golang.org/">Go</a> to serve our web services. Now we just need
+our front end web app to communicate with that service.</p>
+
+<p>AngularJS provides two ways to wire up a back end. The simplest method
+is to use the
+<a href="http://docs.angularjs.org/api/ngResource.$resource">$resource</a>
+service. It provides a simple interface to a web service. If you need
+finer grained control though, you can use the
+<a href="http://docs.angularjs.org/api/ng.$http">$http</a> service. I&rsquo;ll show you
+below how to use the <em>$http</em> service because that&rsquo;s what I ended up
+going with. If you decide to use the <em>$resource</em> service though, just
+keep in mind that it currently always strips the trailing slash wether
+you ask it to or not. You&rsquo;ll need to have your
+<a href="http://golang.org/pkg/net/http/">http.Handler</a>s account for that. For
+example:</p>
+
+<pre><code>func fooHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, &quot;Thanks for the %s!&quot;, r.Method)
+}
+
+// Handle /foo
+http.HandleFunc(&quot;/foo&quot;, fooHandler)
+
+// Or Handle /foo/
+http.HandleFunc(&quot;/foo/&quot;, fooHandler)
+</code></pre>
+
+<p>Before, we go about using the <em>$http</em> service though, we need to talk
+about services in general. Like the <em>$http</em> and <em>$resource</em> services
+that AngularJS provides, you can create your own. Services are a great
+way to decouple code such as connecting to a web service. You can
+<a href="http://en.wikipedia.org/wiki/Mock_object">mock</a> them when you are
+testing the parts of your application that use them and AngularJS will
+manage the instantiation and destruction of the services for you. You
+can find a complete example of a user defined service in the file
+<a href="https://github.com/icub3d/home/blob/master/dev/js/rest/lists.js">list.js</a>.</p>
+
+<p>Let&rsquo;s walk through the create function. It handles the creation of new
+lists or making copies of existing lists. We start by making a <em>POST</em>
+using the <em>$http</em> service.</p>
+
+<pre><code>var promise = $http.post(&quot;/rest/list/&quot;, data);
+</code></pre>
+
+<p>This performs an HTTP POST to the URL <em>&rdquo;/rest/list/&rdquo;</em> with the JSON
+data as the content of the POST. There are similar functions for
+<em>put</em>, <em>get</em>, and <em>delete</em> that correspond to the HTTP <em>PUT</em>, <em>GET</em>
+and <em>DELETE</em> methods. The data could technically be anything. In this
+case though, it&rsquo;s a JavaScript object that contains the information
+necessary to create the new list. AngularJS will take care of
+converting the object into JSON that our Go web service can consume.</p>
+
+<p>The <a href="http://wiki.commonjs.org/wiki/Promises">promise</a> returned allows
+you to hook a success and failure function to the asynchronous
+response to the request. Here, we call the <em>scall</em> or <em>ecall</em>
+functions based on the success or failure of the <em>POST</em>. A similar
+thing happens in all the other functions for the service. In the <em>get</em>
+function, for example, we do the same thing. The only thing that
+differs is that we expect a key for the list being retrieved.</p>
+
+<pre><code>this.get = function(key, scall, ecall) {
+    var promise = $http.get(&quot;/rest/list/&quot; + key + &quot;/&quot;);
+	...
+</code></pre>
+
+<p>You can see an example of using both of these functions and the
+service in the
+<a href="https://github.com/icub3d/home/blob/master/dev/js/lists/all.js">all.js</a>
+file in the <em>$scope.copy</em> function:</p>
+
+<pre><code>$scope.copy = function() {
+	Lists.get($scope.data.key, function(l) {
+		l.Name = $scope.data.name;
+		Lists.create(l, function(nl) {
+				$location.path('/lists/view/' + nl.Key + '/');
+		});
+	});
+};
+</code></pre>
+
+<p>The goal of the <em>copy</em> function is to make a copy of a list with a new
+name. We do that by *get*ting the list to be copied by its key. If
+that succeeds, we change the list name and call the <em>create</em> function
+for that list. If it succeeds, then we redirect to the new list.</p>
+
+<p>I like this function because it shows the simplicity of using
+AngularJS&rsquo;s frameworks. I can make two service calls in just a few
+lines of code to do something meaningful with the application. It also
+exemplifies the notion of &ldquo;going with the flow.&rdquo; Most libraries or
+programming languages have a right and wrong way of doing things. If
+you do it the right way, you can get a lot of functionality with just
+a few lines of code. This makes your code both easier to read and
+maintain.</p>
+
+      </article>
+
+      <ul class="pager blog-pager">
+        
+          <li class="previous">
+            <a href="https://icub3d.github.io/post/hardcore-google-communicating-go/" data-toggle="tooltip" data-placement="top" title="Hardcore Google - RESTful Web Services In Go">&larr; Previous Post</a>
+          </li>
+        
+        
+          <li class="next">
+            <a href="https://icub3d.github.io/post/dont-reinvent-the-wheel/" data-toggle="tooltip" data-placement="top" title="Don&#39;t Reinvent the Wheel">Next Post &rarr;</a>
+          </li>
+        
+      </ul>
+
+      
+
+    </div>
+  </div>
+</div>
+
+    <footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <ul class="list-inline text-center footer-links">
+          
+          
+        </ul>
+        <p class="credits copyright text-muted">
+          
+          &nbsp;&bull;&nbsp;
+          2016
+
+          
+            &nbsp;&bull;&nbsp;
+            <a href="https://icub3d.github.io/">Non Impediti Ratione Cogitationis</a>
+          
+        </p>
+        
+        <p class="credits theme-by text-muted">
+          <a href="http://gohugo.io">Hugo v0.21</a> powered &nbsp;&bull;&nbsp; Theme by <a href="http://deanattali.com/beautiful-jekyll/">Beautiful Jekyll</a> adapted to <a href="https://github.com/halogenica/beautifulhugo">Beautiful Hugo</a>
+          
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.js" integrity="sha384-/y1Nn9+QQAipbNQWU65krzJralCnuOasHncUFXGkdwntGeSvQicrYkiUBwsgUqc1" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/contrib/auto-render.min.js" integrity="sha384-dq1/gEHSxPZQ7DdrM82ID4YVol9BYyU7GbWlIwnwyPzotpoc57wDw/guX8EaYGPx" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="https://icub3d.github.io/js/main.js"></script>
+<script src="https://icub3d.github.io/js/highlight.min.js"></script>
+<script> hljs.initHighlightingOnLoad(); </script>
+<script> renderMathInElement(document.body); </script>
+
+
+
+
+
+  </body>
+</html>
+

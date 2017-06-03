@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+  <title>Securing Your Connection With OpenVPN</title>
+  <meta property="og:title" content="Securing Your Connection With OpenVPN" />
+  <meta name="twitter:title" content="Securing Your Connection With OpenVPN" />
+  <meta name="description" content="Recently, I wanted to setup a private development environment for my home. Public places like slack, github, etc. are great for open source development and enterprise teams. It can be expensive to pay for some of their services though if you are on a small team or do side work here and there. For me, spending a few hundred dollars on a cheap computer (I went with a NUC), allowed me to setup all the services I needed for a small team that would quickly pay for itself.">
+  <meta property="og:description" content="Recently, I wanted to setup a private development environment for my home. Public places like slack, github, etc. are great for open source development and enterprise teams. It can be expensive to pay for some of their services though if you are on a small team or do side work here and there. For me, spending a few hundred dollars on a cheap computer (I went with a NUC), allowed me to setup all the services I needed for a small team that would quickly pay for itself.">
+  <meta name="twitter:description" content="Recently, I wanted to setup a private development environment for my home. Public places like slack, github, etc. are great for open source development and enterprise teams. It can be expensive to pay …">
+  <meta name="author" content=""/>
+  <meta name="twitter:card" content="summary" />
+  <meta property="og:url" content="https://icub3d.github.io/post/private-dev-vpn/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Non Impediti Ratione Cogitationis" />
+
+  <meta name="generator" content="Hugo 0.21" />
+  <link rel="canonical" href="https://icub3d.github.io/post/private-dev-vpn/" />
+  <link rel="alternate" href="https://icub3d.github.io/index.xml" type="application/rss+xml" title="Non Impediti Ratione Cogitationis">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.css" integrity="sha384-wITovz90syo1dJWVh32uuETPVEtGigN07tkttEqPv+uR2SE/mbQcG7ATL28aI9H0" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://icub3d.github.io/css/main.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" />
+  <link rel="stylesheet" href="https://icub3d.github.io/css/pygment_highlights.css" />
+  <link rel="stylesheet" href="https://icub3d.github.io/css/highlight.min.css" />
+
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'UA-37698200-1', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='//www.google-analytics.com/analytics.js'></script>
+
+</head>
+
+  <body>
+    <nav class="navbar navbar-default navbar-fixed-top navbar-custom">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="https://icub3d.github.io/">Non Impediti Ratione Cogitationis</a>
+    </div>
+
+    <div class="collapse navbar-collapse" id="main-navbar">
+      <ul class="nav navbar-nav navbar-right">
+        
+
+        
+
+        
+      </ul>
+    </div>
+
+    <div class="avatar-container">
+      <div class="avatar-img-border">
+        
+      </div>
+    </div>
+
+  </div>
+</nav>
+
+
+
+
+    
+  
+  
+  
+
+
+
+
+  
+
+  <header class="header-section ">
+    
+    <div class="intro-header no-img">
+      
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+            <div class="post-heading">
+              <h1>Securing Your Connection With OpenVPN</h1>
+                
+                
+                  <span class="post-meta">
+  Posted on February 19, 2016
+  
+</span>
+
+
+                
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+
+    
+<div class="container">
+  <div class="row">
+    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+      <article role="main" class="blog-post">
+        
+
+<p>Recently, I wanted to setup a private development environment for my
+home. Public places like <a href="https://slack.com/">slack</a>,
+<a href="https://github.com/">github</a>, etc. are great for open source
+development and enterprise teams. It can be expensive to pay for some
+of their services though if you are on a small team or do side work
+here and there. For me, spending a few hundred dollars on a cheap
+computer (I went with a NUC), allowed me to setup all the services I
+needed for a small team that would quickly pay for itself. Over the
+next several posts I&rsquo;ll explain how I did it all with open source
+software and <a href="https://www.docker.com/">docker</a>. I was able to get up a
+git repo (<a href="https://gogs.io/">gogs</a>), a CI system
+(<a href="https://github.com/drone/drone">drone</a>), and much more running in
+just a few days.</p>
+
+<p>One note before we get started, I did all of this on an
+<a href="https://www.archlinux.org/">Arch Linux</a> system so many of the tools
+are recent versions. For example, I used Docker 1.10.1 which may
+have features that other linux distro&rsquo;s may not have with their canned
+docker packages. If you have problems running some of the commands,
+try installing the newer versions of the tools or adapting the
+commands to fit your version.</p>
+
+<p>Let&rsquo;s start with setting up <a href="https://openvpn.net/">OpenVPN</a>. I
+wanted to be able to get access to the various services I&rsquo;d be setting
+up remotely without exposing them to the greater public. It turns out
+others have already done some great work in simplifying this
+process. Much of my work below is adapted from the instructions at
+<a href="https://hub.docker.com/r/kylemanna/openvpn/">kylemann/openvpn</a>&rsquo;s
+docker hub page.</p>
+
+<h1 id="server-initialization">Server Initialization</h1>
+
+<p>The first thing we want to do is create a docker volume to store our
+configuration and key data.</p>
+
+<pre><code>docker volume create --name openvpn-data
+</code></pre>
+
+<p>This will make it simpler to backup your data (as we&rsquo;ll see in a later
+post) as well as keep it separate from the actual container. With that
+done, we can initialize the configuration file as well as the
+certificate store.</p>
+
+<pre><code>docker run -v openvpn-data:/etc/openvpn --rm kylemanna/openvpn ovpn_genconfig -u tcp://HOSTNAME
+docker run -v openvpn-data:/etc/openvpn --rm -it kylemanna/openvpn ovpn_initpki
+</code></pre>
+
+<p>Obviously, you&rsquo;ll want to change <em>HOSTNAME</em> with the external DNS name
+that will be used to connect to this server. Also, in my case, I used
+TCP because OpenVPN seemed to be mistaking packets that are resent
+over the cellular network as a replay attack. Some googling suggested
+that configuration changes could fix this, but I felt like just using
+TCP would be fine for my case.</p>
+
+<h1 id="server-configuration">Server Configuration</h1>
+
+<p>Before you start the service you may want to modify the configuration
+information. You can do this by creating a docker container that has
+your favorite editor and including the volume for the <em>openvpn-data</em>
+or you can simply edit the files in
+_/var/lib/docker/volumes/openvpn-data/<em>data/</em>. In the file
+_ovpn<em>env.sh</em>, you&rsquo;ll want to make a few changes:</p>
+
+<pre><code>declare -x OVPN_CN=&quot;HOSTNAME&quot;
+declare -x OVPN_PROTO=&quot;tcp&quot;
+declare -ax OVPN_ROUTES='([0]=&quot;X.X.X.0/24&quot;)'
+declare -x OVPN_SERVER=&quot;X.X.X.0/24&quot;
+declare -x OVPN_SERVER_URL=&quot;tcp://HOSTNAME&quot;
+</code></pre>
+
+<p>Replace <em>X.X.X</em> with the subnet of your local network and <em>HOSTNAME</em>
+with the external DNS entry. Next, you can modify the <em>openvpn.conf</em>
+to suit your needs. Here were some notable changes I made:</p>
+
+<pre><code>server X.X.X.192 255.255.255.192
+user nobody
+group nogroup
+push dhcp-option DNS X.X.X.1
+push route X.X.X.0 255.255.255.0
+</code></pre>
+
+<p>Again, replace <em>X.X.X</em> with your local subnet. I chose the server IP
+and mask because I have my local DHCP server setup to give local
+addresses between 2 and 192. Using this server configuration, openvpn
+will setup a tunnel on the address X.X.X.193 and give IP Addresses
+between 194 and 255.</p>
+
+<p>If you have a different DNS server, you&rsquo;ll want to change the value
+above, but my local DNS server is the same as my router and yours is
+probably the same. This allows me to setup things like <em>git.HOSTNAME</em>
+locally and have it resolve when connected to the VPN. The route push
+is also important because it tells the client to send all traffic
+destined for our local subnet to use the VPN.</p>
+
+<h1 id="ip-forwarding">IP Forwarding</h1>
+
+<p>One thing to keep in mind is that many systems don&rsquo;t allow IP packets
+to be forwarded, which means openvpn won&rsquo;t work. You can enable this
+using sysctl but systemd won&rsquo;t adhere to it. If you are using systemd,
+you may have to enable it explicitly. For me, I created the following
+file and restarted networking:</p>
+
+<pre><code># cat /etc/systemd/network/eno1.network
+[Match]
+Name=eno1
+
+[Network]
+DHCP=yes
+IPForward=yes
+</code></pre>
+
+<h1 id="running">Running</h1>
+
+<p>Ok, we are ready to start the container now. Here is the command line I used:</p>
+
+<pre><code>docker run  -v openvpn-data:/etc/openvpn -d -p 1194:1194/tcp --cap-add=NET_ADMIN --restart=always --name=openvpn kylemanna/openvpn
+</code></pre>
+
+<p>First, we link to our data volume and expose our port to the
+server. Adding the _NET<em>ADMIN</em> capability is necessary because the
+container will make a tunnel interface on the host. I love
+<em>restart=always</em>. It simplifies starting my services.</p>
+
+<h1 id="network-details">Network Details</h1>
+
+<p>This may be obvious, but there are some networking details to get this
+to work. First, your firewall will need to be setup to forward traffic
+to your host server on port 1194 (or whatever you configured). I can&rsquo;t
+give you specific instructions on doing this for your router but most
+of the routers that have a UI section called something like &ldquo;Port
+Forwarding&rdquo; that should allow you to do it.</p>
+
+<p>Also, your <em>HOSTNAME</em> value need to be on a public DNS server or it
+needs to be your public IP Address. In my case, I have a static IP
+address, so I was able to simply add a DNS entry on my public DNS
+server. If you&rsquo;re IP Address is not static you can try using a dynamic
+DNS service like <a href="http://www.noip.com/">no-ip</a>. You&rsquo;ll then just need
+to configure your router to update the IP Address when it changes or
+use a service to do it. Many routers these days give you the ability
+to update a dynamic DNS entry.</p>
+
+<h1 id="client-configuration">Client Configuration</h1>
+
+<p>In order for a client to connect, we need create certificates for
+them. You should do this for each client replacing <em>CLIENT</em> with the
+actual client name.</p>
+
+<pre><code>docker run -v openvpn-data:/etc/openvpn --rm -it kylemanna/openvpn easyrsa build-client-full CLIENT nopass
+docker run -v openvpn-data:/etc/openvpn --rm kylemanna/openvpn ovpn_getclient CLIENT &gt; CLIENT.ovpn
+</code></pre>
+
+<p>In my case, I chose to only do certificate authentication, thus the
+<em>nopass</em> option. You can see the docker hub page listed earlier for more
+options and how to set a password for clients if you wish.</p>
+
+<p>My Android devices worked out of the box. I simply installed
+<a href="https://play.google.com/store/apps/details?id=net.openvpn.openvpn">OpenVPN</a>
+and imported the configuration file made from above. My laptop had one
+issue though that might be noteworthy. I couldn&rsquo;t get DNS to resolve
+out of the box with the configuration. I had to install
+<a href="https://www.archlinux.org/packages/core/any/openresolv/">openresolv</a>,
+save the shell script
+<a href="https://raw.githubusercontent.com/masterkorp/openvpn-update-resolv-conf/master/update-resolv-conf.sh">update-resolv-conf.sh</a>
+to <em>/etc/openvpn/update-resolv-conf.sh</em>, <em>chmod</em> it, and then add this
+to the bottom of my configuration:</p>
+
+<pre><code>script-security 2
+up /etc/openvpn/update-resolv-conf
+down /etc/openvpn/update-resolv-conf
+</code></pre>
+
+<p>With that done, it worked great.</p>
+
+<h1 id="conclusion">Conclusion</h1>
+
+<p>Ok, that was a bit involved but if you are at all familiar with
+setting up a VPN service, most of it is a review. There are really
+just a few commands that might be new which are related to using the
+docker container for the service. I&rsquo;ve been really happy with my
+setup. Not only do I use it to connect to my local systems but I also
+use it when I&rsquo;m on public WiFi to ensure that my surfing is safe.</p>
+
+      </article>
+
+      <ul class="pager blog-pager">
+        
+          <li class="previous">
+            <a href="https://icub3d.github.io/post/unifi-controller-arch-linux-arm/" data-toggle="tooltip" data-placement="top" title="Installing UniFi Controller on Arch Linux | ARM">&larr; Previous Post</a>
+          </li>
+        
+        
+          <li class="next">
+            <a href="https://icub3d.github.io/post/private-networks-nginx/" data-toggle="tooltip" data-placement="top" title="Docker Private Networks and Nginx">Next Post &rarr;</a>
+          </li>
+        
+      </ul>
+
+      
+
+    </div>
+  </div>
+</div>
+
+    <footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <ul class="list-inline text-center footer-links">
+          
+          
+        </ul>
+        <p class="credits copyright text-muted">
+          
+          &nbsp;&bull;&nbsp;
+          2016
+
+          
+            &nbsp;&bull;&nbsp;
+            <a href="https://icub3d.github.io/">Non Impediti Ratione Cogitationis</a>
+          
+        </p>
+        
+        <p class="credits theme-by text-muted">
+          <a href="http://gohugo.io">Hugo v0.21</a> powered &nbsp;&bull;&nbsp; Theme by <a href="http://deanattali.com/beautiful-jekyll/">Beautiful Jekyll</a> adapted to <a href="https://github.com/halogenica/beautifulhugo">Beautiful Hugo</a>
+          
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.js" integrity="sha384-/y1Nn9+QQAipbNQWU65krzJralCnuOasHncUFXGkdwntGeSvQicrYkiUBwsgUqc1" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/contrib/auto-render.min.js" integrity="sha384-dq1/gEHSxPZQ7DdrM82ID4YVol9BYyU7GbWlIwnwyPzotpoc57wDw/guX8EaYGPx" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="https://icub3d.github.io/js/main.js"></script>
+<script src="https://icub3d.github.io/js/highlight.min.js"></script>
+<script> hljs.initHighlightingOnLoad(); </script>
+<script> renderMathInElement(document.body); </script>
+
+
+
+
+
+  </body>
+</html>
+

@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+  <title>Hardcore Google - Unit Testing App Engine</title>
+  <meta property="og:title" content="Hardcore Google - Unit Testing App Engine" />
+  <meta name="twitter:title" content="Hardcore Google - Unit Testing App Engine" />
+  <meta name="description" content="This post is part of a series Hardcore Google. You can find other posts here:
+ Unit Testing App Engine RESTful Web Services In Go RESTful Communication With AngularJS  I recently began a project using Go, AngularJS, and Google App Engine. It is a personal web site I use at home to help keep my family organized. I&rsquo;ll talk more about it later in a series of posts. I&rsquo;m not actually completely finished with it yet, but I thought I&rsquo;d start this series.">
+  <meta property="og:description" content="This post is part of a series Hardcore Google. You can find other posts here:
+ Unit Testing App Engine RESTful Web Services In Go RESTful Communication With AngularJS  I recently began a project using Go, AngularJS, and Google App Engine. It is a personal web site I use at home to help keep my family organized. I&rsquo;ll talk more about it later in a series of posts. I&rsquo;m not actually completely finished with it yet, but I thought I&rsquo;d start this series.">
+  <meta name="twitter:description" content="This post is part of a series Hardcore Google. You can find other posts here:
+ Unit Testing App Engine RESTful Web Services In Go RESTful Communication With AngularJS  I recently began a project using …">
+  <meta name="author" content=""/>
+  <meta name="twitter:card" content="summary" />
+  <meta property="og:url" content="https://icub3d.github.io/post/hardcore-google-unit-testing/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Non Impediti Ratione Cogitationis" />
+
+  <meta name="generator" content="Hugo 0.21" />
+  <link rel="canonical" href="https://icub3d.github.io/post/hardcore-google-unit-testing/" />
+  <link rel="alternate" href="https://icub3d.github.io/index.xml" type="application/rss+xml" title="Non Impediti Ratione Cogitationis">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.css" integrity="sha384-wITovz90syo1dJWVh32uuETPVEtGigN07tkttEqPv+uR2SE/mbQcG7ATL28aI9H0" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://icub3d.github.io/css/main.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" />
+  <link rel="stylesheet" href="https://icub3d.github.io/css/pygment_highlights.css" />
+  <link rel="stylesheet" href="https://icub3d.github.io/css/highlight.min.css" />
+
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'UA-37698200-1', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='//www.google-analytics.com/analytics.js'></script>
+
+</head>
+
+  <body>
+    <nav class="navbar navbar-default navbar-fixed-top navbar-custom">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="https://icub3d.github.io/">Non Impediti Ratione Cogitationis</a>
+    </div>
+
+    <div class="collapse navbar-collapse" id="main-navbar">
+      <ul class="nav navbar-nav navbar-right">
+        
+
+        
+
+        
+      </ul>
+    </div>
+
+    <div class="avatar-container">
+      <div class="avatar-img-border">
+        
+      </div>
+    </div>
+
+  </div>
+</nav>
+
+
+
+
+    
+  
+  
+  
+
+
+
+
+  
+
+  <header class="header-section ">
+    
+    <div class="intro-header no-img">
+      
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+            <div class="post-heading">
+              <h1>Hardcore Google - Unit Testing App Engine</h1>
+                
+                
+                  <span class="post-meta">
+  Posted on February 10, 2013
+  
+</span>
+
+
+                
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+
+    
+<div class="container">
+  <div class="row">
+    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+      <article role="main" class="blog-post">
+        <p>This post is part of a series <em>Hardcore Google</em>. You can find other
+posts here:</p>
+
+<ul>
+<li><a href="{% post_url 2013-02-10-hardcore-google-unit-testing %}">Unit Testing App Engine</a></li>
+<li><a href="{% post_url 2013-02-16-hardcore-google-communicating-go %}">RESTful Web Services In Go</a></li>
+<li><a href="{% post_url 2013-03-12-hardcore-google-communicating-angularjs %}">RESTful Communication With AngularJS</a></li>
+</ul>
+
+<p>I recently began a project using <a href="http://golang.org/">Go</a>,
+<a href="http://angularjs.org/">AngularJS</a>, and
+<a href="https://developers.google.com/appengine/">Google App Engine</a>. It is a
+personal web site I use at home to help keep my family organized. I&rsquo;ll
+talk more about it later in a series of posts. I&rsquo;m not actually
+completely finished with it yet, but I thought I&rsquo;d start this series.
+Some of the aspects of the project were interesting enough that I
+wanted to have a place where I could look back and remember how I did
+it. There may also be some people out there that get something out of
+it as well.</p>
+
+<p>First, let me explain why I picked Go, AngularJS and Google App
+Engine. I&rsquo;m a <a href="http://en.wikipedia.org/wiki/Do_it_yourself">DIY</a> sort
+of guys, and I&rsquo;m always fascinated with trying different things. The
+bulk of my work life revolves around <a href="http://www.python.org/">Python</a>,
+<a href="http://php.net/">PHP</a>,
+[C](<a href="http://en.wikipedia.org/wiki/C_(programming_language">http://en.wikipedia.org/wiki/C_(programming_language</a>), and
+<a href="http://www.perl.org/">Perl</a>. These are cool languages and I can do
+awesome things with them, but they aren&rsquo;t <em>new</em> and <em>exciting</em> to me
+anymore.</p>
+
+<p>Go and AngularJS seem to be the new kids on the block that are getting
+a lot of attention in my circles. I&rsquo;ve already posted quite a bit
+about Go. I haven&rsquo;t done a major project with it yet though, so I
+thought this would be a good opportunity. I also recently came across
+AngularJS and was impressed with the way it allows you to abstract the
+presentation with the application logic. I&rsquo;ve never been more
+interested in <a href="http://en.wikipedia.org/wiki/JavaScript">JavaScript</a>
+before.</p>
+
+<p>I wanted to find a place I could host my code for free and not limit
+it to a server running in my home. The project would be extremely
+useful on the go with my table or phone. App Engine seemed like the
+best place for this because I&rsquo;d likely never go over the free daily
+quotas. Since Go is supported, it seemed like a good fit in that
+respect as well. I already use
+<a href="http://www.google.com/intl/en/enterprise/apps/business/">Google Apps</a>,
+so I could manage authentication through that and wouldn&rsquo;t need to
+design any of that logic.</p>
+
+<p>And with that, I officially became a Google
+<a href="http://www.urbandictionary.com/define.php?term=fanboi">fanboi</a> for
+this project. I&rsquo;ll talk more about the architecture in another post,
+but I used App Engine to server my static content and server my
+<a href="http://en.wikipedia.org/wiki/Representational_state_transfer">REST</a>ful
+interface built in Go. The website, when minified is just one web
+page, one CSS file, and one JavaScript file. It communicates to a
+simple REST service to retrieve the data it needs for presentation.</p>
+
+<p>One of the problems I ran into quickly was the ability to
+<a href="http://en.wikipedia.org/wiki/Unit_testing">unit test</a> my code. This
+project is a bit more than just a few files, so unit testing was going
+to be important. I find that for these large projects if I can write
+unit tests I can iteratively develop parts of the system without
+needing the others to make sure my code works as expected. Creating
+unit tests in go is fairly simple. The
+<a href="http://golang.org/cmd/go/">go tool</a> has a test command and the
+<a href="http://golang.org/pkg/testing/">testing package</a> provides you with
+just about everything you need.</p>
+
+<p>Testing code that relies on the <em>appengine</em> package is more difficult
+though. You need some sort of
+<a href="http://en.wikipedia.org/wiki/Mock_object">mock object</a> for the
+appengine to make any sort of testing possible. I found a package by
+<a href="http://bradfitz.com/">Brad Fitzpatrick</a> called
+<a href="http://code.google.com/p/gae-go-testing/">gae-go-testing</a>. It was a
+bit outdated though and didn&rsquo;t contain all the features I was looking
+for. <a href="http://en.wikipedia.org/wiki/Open_source">Open source</a> to the
+rescue! I forked the repository and got it working. You can see and
+use the forked package at
+<a href="https://github.com/icub3d/appenginetesting">github.com/icub3d/appenginetesting</a>.</p>
+
+<p>The basic premise is to spin up a temporary App Engine instance
+locally and then use it with some hooks to simulate typical App Engine
+functionality. To use it, you need to already have the
+<a href="https://developers.google.com/appengine/downloads">App Engine SDK installed</a>. With
+that done, we just need to do some minor setup work before we run our
+tests:</p>
+
+<pre><code>export APPENGINE_SDK=/path/to/google_appengine
+export PATH=$PATH:$APPENGINE_SDK
+cd ~/go/src
+ln -s $APPENGINE_SDK/goroot/src/pkg/appengine
+ln -s $APPENGINE_SDK/goroot/src/pkg/appengine_internal
+go get github.com/icub3d/appenginetesting
+</code></pre>
+
+<p>With that done, we should now be able to perform some basic App Engine
+functions in our tests. For example:</p>
+
+<pre><code>// Create mocked context.
+c, err := appenginetesting.NewContext(nil)
+if err != nil {
+    fmt.Println(&quot;initilizing context:&quot;, err)
+    return
+}
+
+// Close the context when we are done.
+defer c.Close()
+
+// Get an element from the datastore.
+k := datastore.NewKey(c, &quot;Entity&quot;, &quot;stringID&quot;, 0, nil)
+e := &quot;&quot;
+if err := datastore.Get(c, k, &amp;e); err != nil {
+    fmt.Println(&quot;datastore get:&quot;, err)
+    return
+}
+
+// Put an element in the datastore.
+if _, err := datastore.Put(c, k, &amp;e); err != nil {
+    fmt.Println(&quot;datastore put:&quot;, err)
+    return
+}
+</code></pre>
+
+<p>We create a new <em>Context</em> using the <em>appenginetesting.NewContext</em>
+function. This call spins up a temporary instance of the App Engine
+development server. We can then use it like we would a real <em>Context</em>
+and perform normal data store queries.</p>
+
+<p>One feature that was missing was the ability to fetch user information
+from the <em>Context</em>. Adding it was fairly straight forward. You can use
+it&rsquo;s functionality like this:</p>
+
+<pre><code>// Create mocked context.
+c, err := appenginetesting.NewContext(nil)
+if err != nil {
+    fmt.Println(&quot;initilizing context:&quot;, err)
+    return
+}
+
+// Close the context when we are done.
+defer c.Close()
+
+// Log a user in.
+c.Login(&quot;test@example.com&quot;, true)
+
+// Get the user.
+u := user.Current(c)
+if u == nil {
+    fmt.Println(&quot;we didn't get a user!&quot;)
+    return
+}
+
+fmt.Println(&quot;Email:&quot;, u.Email)
+fmt.Println(&quot;Admin:&quot;, u.Admin)
+</code></pre>
+
+<p>With all of this setup, it is now extremely simply for me to write
+test cases against my App Engine related code. Hopefully you&rsquo;ll find
+this helpful in your App Engine projects using Go. You can see the
+full documentation on
+<a href="http://godoc.org/github.com/icub3d/appenginetesting">godoc</a>. There is
+still room for improvement, so if you have feature requests, don&rsquo;t
+hesitate to enter an issue or make a
+<a href="https://github.com/icub3d/appenginetesting/pulls">pull request</a>.</p>
+
+      </article>
+
+      <ul class="pager blog-pager">
+        
+          <li class="previous">
+            <a href="https://icub3d.github.io/post/go-cross-compilers-linux/" data-toggle="tooltip" data-placement="top" title="Cross Compiling Go Applications">&larr; Previous Post</a>
+          </li>
+        
+        
+          <li class="next">
+            <a href="https://icub3d.github.io/post/hardcore-google-communicating-go/" data-toggle="tooltip" data-placement="top" title="Hardcore Google - RESTful Web Services In Go">Next Post &rarr;</a>
+          </li>
+        
+      </ul>
+
+      
+
+    </div>
+  </div>
+</div>
+
+    <footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <ul class="list-inline text-center footer-links">
+          
+          
+        </ul>
+        <p class="credits copyright text-muted">
+          
+          &nbsp;&bull;&nbsp;
+          2016
+
+          
+            &nbsp;&bull;&nbsp;
+            <a href="https://icub3d.github.io/">Non Impediti Ratione Cogitationis</a>
+          
+        </p>
+        
+        <p class="credits theme-by text-muted">
+          <a href="http://gohugo.io">Hugo v0.21</a> powered &nbsp;&bull;&nbsp; Theme by <a href="http://deanattali.com/beautiful-jekyll/">Beautiful Jekyll</a> adapted to <a href="https://github.com/halogenica/beautifulhugo">Beautiful Hugo</a>
+          
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.js" integrity="sha384-/y1Nn9+QQAipbNQWU65krzJralCnuOasHncUFXGkdwntGeSvQicrYkiUBwsgUqc1" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/contrib/auto-render.min.js" integrity="sha384-dq1/gEHSxPZQ7DdrM82ID4YVol9BYyU7GbWlIwnwyPzotpoc57wDw/guX8EaYGPx" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="https://icub3d.github.io/js/main.js"></script>
+<script src="https://icub3d.github.io/js/highlight.min.js"></script>
+<script> hljs.initHighlightingOnLoad(); </script>
+<script> renderMathInElement(document.body); </script>
+
+
+
+
+
+  </body>
+</html>
+

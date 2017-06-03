@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+  <title>Installing UniFi Controller on Arch Linux | ARM</title>
+  <meta property="og:title" content="Installing UniFi Controller on Arch Linux | ARM" />
+  <meta name="twitter:title" content="Installing UniFi Controller on Arch Linux | ARM" />
+  <meta name="description" content="I realize that the subject by itself seems to limit the interested audience of this post significantly. It took some tweaks to get the UniFi Controller from Ubiquiti working on Arch Linux | ARM though and I wanted to get it out there, if only just for me.
+I&rsquo;m going to presume you already have Arch Linux running on ARM. I used a Raspberry Pi 2, so your packages/mileage may vary if you are following these instructions elsewhere.">
+  <meta property="og:description" content="I realize that the subject by itself seems to limit the interested audience of this post significantly. It took some tweaks to get the UniFi Controller from Ubiquiti working on Arch Linux | ARM though and I wanted to get it out there, if only just for me.
+I&rsquo;m going to presume you already have Arch Linux running on ARM. I used a Raspberry Pi 2, so your packages/mileage may vary if you are following these instructions elsewhere.">
+  <meta name="twitter:description" content="I realize that the subject by itself seems to limit the interested audience of this post significantly. It took some tweaks to get the UniFi Controller from Ubiquiti working on Arch Linux | ARM though …">
+  <meta name="author" content=""/>
+  <meta name="twitter:card" content="summary" />
+  <meta property="og:url" content="https://icub3d.github.io/post/unifi-controller-arch-linux-arm/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Non Impediti Ratione Cogitationis" />
+
+  <meta name="generator" content="Hugo 0.21" />
+  <link rel="canonical" href="https://icub3d.github.io/post/unifi-controller-arch-linux-arm/" />
+  <link rel="alternate" href="https://icub3d.github.io/index.xml" type="application/rss+xml" title="Non Impediti Ratione Cogitationis">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.css" integrity="sha384-wITovz90syo1dJWVh32uuETPVEtGigN07tkttEqPv+uR2SE/mbQcG7ATL28aI9H0" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://icub3d.github.io/css/main.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" />
+  <link rel="stylesheet" href="https://icub3d.github.io/css/pygment_highlights.css" />
+  <link rel="stylesheet" href="https://icub3d.github.io/css/highlight.min.css" />
+
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'UA-37698200-1', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='//www.google-analytics.com/analytics.js'></script>
+
+</head>
+
+  <body>
+    <nav class="navbar navbar-default navbar-fixed-top navbar-custom">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="https://icub3d.github.io/">Non Impediti Ratione Cogitationis</a>
+    </div>
+
+    <div class="collapse navbar-collapse" id="main-navbar">
+      <ul class="nav navbar-nav navbar-right">
+        
+
+        
+
+        
+      </ul>
+    </div>
+
+    <div class="avatar-container">
+      <div class="avatar-img-border">
+        
+      </div>
+    </div>
+
+  </div>
+</nav>
+
+
+
+
+    
+  
+  
+  
+
+
+
+
+  
+
+  <header class="header-section ">
+    
+    <div class="intro-header no-img">
+      
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+            <div class="post-heading">
+              <h1>Installing UniFi Controller on Arch Linux | ARM</h1>
+                
+                
+                  <span class="post-meta">
+  Posted on January 28, 2016
+  
+</span>
+
+
+                
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+
+    
+<div class="container">
+  <div class="row">
+    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+      <article role="main" class="blog-post">
+        <p>I realize that the subject by itself seems to limit the interested
+audience of this post significantly. It took some tweaks to get the
+<a href="https://www.ubnt.com/download/unifi/">UniFi Controller</a> from
+<a href="https://www.ubnt.com/">Ubiquiti</a> working on
+<a href="http://archlinuxarm.org/">Arch Linux | ARM</a> though and I wanted to
+get it out there, if only just for me.</p>
+
+<p>I&rsquo;m going to presume you already have Arch Linux running on ARM. I
+used a Raspberry Pi 2, so your packages/mileage may vary if you are
+following these instructions elsewhere. Your users should have <em>sudo</em>
+privileges, otherwise you should <em>su</em> and then ignore the <em>sudo</em> part
+of each command. First, lets install the packages we need:</p>
+
+<pre><code>sudo pacman -S mongodb jdk7-openjdk unzip
+</code></pre>
+
+<p>These are the only dependencies required for the controller. With that
+done, you can download and extract the unix zip file from the
+<a href="https://www.ubnt.com/download/unifi">UniFi Download Page</a>. It will be
+named something like <em>UniFi vX.X.X Zip for DIY</em>. Mine looked something
+like this:</p>
+
+<pre><code>wget http://dl.ubnt.com/unifi/4.7.6/UniFi.unix.zip
+unzip UniFi.unix.zip
+sudo mv UniFi /opt/UniFi
+</code></pre>
+
+<p>By default, UniFi has a symlink to <em>mongod</em> but we need to add a few
+options to get <em>mongod</em> to startup through the controller. The reason
+behind the two additional options is primarily due to the Raspberry Pi
+2 being 32-bit and MongoDB having some limitations on it.</p>
+
+<pre><code>cd /opt/UniFi/bin/
+cat &gt;mongod
+#!/bin/bash
+
+/usr/bin/mongod --journal --storageEngine=mmapv1 &quot;$@&quot;
+^D
+chmod a+x mongod
+</code></pre>
+
+<p>You can now create a service to start and stop it. Here is my service file:</p>
+
+<pre><code>cat /lib/systemd/system/unifi.service
+[Unit]
+Description=unifi
+After=local-fs.target remote-fs.target network-online.target
+Wants=network-online.target
+Conflicts=shutdown.target
+
+[Service]
+TimeoutSec=5min
+IgnoreSIGPIPE=no
+KillMode=process
+RemainAfterExit=yes
+ExecStart=/usr/bin/java -jar /opt/UniFi/lib/ace.jar start
+ExecStop=/usr/bin/java -jar /opt/UniFi/lib/ace.jar stop
+
+[Install]
+WantedBy=multi-user.target
+</code></pre>
+
+<pre><code>sudo systemctl daemon-reload
+sudo systemctl enable unifi
+sudo systemctl start unifi
+</code></pre>
+
+<p>It may take a few minutes to start up but the web app should
+eventually be available. I&rsquo;ve had several restarts with my pi2 and
+it&rsquo;s always come up fine. For more information on starting and
+stopping, you can see the <em>readme.txt</em> file that came with the zip.</p>
+
+<p>There are a couple of things it mentions that the unix version isn&rsquo;t
+able to do, namely upgrade and backup. Upgrading basically involves
+taking a backup, getting the new zip file and overlaying it, and then
+restoring the backup. I haven&rsquo;t had to do this yet, but I was
+interested to know if/when a new version was available. I wrote a
+small cron job that will mail me from the server. If you want to use
+it as well, you need to install a few more packages:</p>
+
+<pre><code>sudo pacman -S postfix jq cronie mutt
+sudo systemctl restart postfix
+</code></pre>
+
+<p>Then I created the following script:</p>
+
+<pre><code>#!/bin/bash
+
+curl -s 'https://www.ubnt.com/download/?platform=unifi' -H 'Accept-Encoding: gzip, deflate, sdch' -H 'Accept-Language: en-US,en;q=0.8,nl;q=0.6' -H 'User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.82 Safari/537.36' -H 'Accept: application/json, text/javascript, */*; q=0.01' -H 'Referer: https://www.ubnt.com/download/unifi/' -H 'X-Requested-With: XMLHttpRequest' -H 'Connection: keep-alive' -H 'If-Modified-Since: Thu, 28 Jan 2016 23:42:54 GMT' -H 'Cache-Control: max-age=0' --compressed | jq '.downloads[] | {name: .name}' | grep Linux | sort &gt; ~/.unifi_new
+
+touch ~/.unifi
+
+DIFF=$(diff ~/.unifi ~/.unifi_new)
+if [ &quot;$DIFF&quot; != &quot;&quot; ]; then
+		echo &quot;$DIFF&quot; | mutt -s &quot;UniFi Controller Updated&quot; '[INSERT EMAIL HERE]'
+		cp ~/.unifi_new ~/.unifi
+fi
+</code></pre>
+
+<p>Simply replace &lsquo;[INSERT EMAIL HERE]&rsquo; with your e-mail address. You can
+then add this to a cron job. My entry looked like:</p>
+
+<pre><code>0 5 * * * /home/jmarsh/bin/unifi.sh
+</code></pre>
+
+<p>The first run will send you an e-mail because there is no original.
+Otherwise, you shouldn&rsquo;t get anything until a new version is out.</p>
+
+<p>Finally, there is the question of making a backup. Because I don&rsquo;t
+have a lot of room on my Raspberry Pi 2, I chose not to do a daily
+backup but instead opted to backup after any major changes to my
+network. This is how I do it:</p>
+
+<pre><code>sudo systemctl stop unifi
+sudo tar -czf unifi-controller-backup-2015-01-29.tar.gz /opt/UniFi/data
+sudo systemctl start unifi
+</code></pre>
+
+      </article>
+
+      <ul class="pager blog-pager">
+        
+          <li class="previous">
+            <a href="https://icub3d.github.io/post/go-io/" data-toggle="tooltip" data-placement="top" title="Go I/O is Fun*!">&larr; Previous Post</a>
+          </li>
+        
+        
+          <li class="next">
+            <a href="https://icub3d.github.io/post/private-dev-vpn/" data-toggle="tooltip" data-placement="top" title="Securing Your Connection With OpenVPN">Next Post &rarr;</a>
+          </li>
+        
+      </ul>
+
+      
+
+    </div>
+  </div>
+</div>
+
+    <footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <ul class="list-inline text-center footer-links">
+          
+          
+        </ul>
+        <p class="credits copyright text-muted">
+          
+          &nbsp;&bull;&nbsp;
+          2016
+
+          
+            &nbsp;&bull;&nbsp;
+            <a href="https://icub3d.github.io/">Non Impediti Ratione Cogitationis</a>
+          
+        </p>
+        
+        <p class="credits theme-by text-muted">
+          <a href="http://gohugo.io">Hugo v0.21</a> powered &nbsp;&bull;&nbsp; Theme by <a href="http://deanattali.com/beautiful-jekyll/">Beautiful Jekyll</a> adapted to <a href="https://github.com/halogenica/beautifulhugo">Beautiful Hugo</a>
+          
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.js" integrity="sha384-/y1Nn9+QQAipbNQWU65krzJralCnuOasHncUFXGkdwntGeSvQicrYkiUBwsgUqc1" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/contrib/auto-render.min.js" integrity="sha384-dq1/gEHSxPZQ7DdrM82ID4YVol9BYyU7GbWlIwnwyPzotpoc57wDw/guX8EaYGPx" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="https://icub3d.github.io/js/main.js"></script>
+<script src="https://icub3d.github.io/js/highlight.min.js"></script>
+<script> hljs.initHighlightingOnLoad(); </script>
+<script> renderMathInElement(document.body); </script>
+
+
+
+
+
+  </body>
+</html>
+

@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+  <title>Determining Determinism</title>
+  <meta property="og:title" content="Determining Determinism" />
+  <meta name="twitter:title" content="Determining Determinism" />
+  <meta name="description" content="I&rsquo;ve always lived by the programming adage, &ldquo;Get it working, then make it either readable or fast.&rdquo; When you are developing games or other high performance applications, the making it fast part can consume a lot of your time.
+I can&rsquo;t count the number of hours I&rsquo;ve spent looking at call graphs. What do you do when you&rsquo;ve determined your bottleneck though? Most people start looking at common things like unraveling loops and recursion or creating look up tables (LUTs).">
+  <meta property="og:description" content="I&rsquo;ve always lived by the programming adage, &ldquo;Get it working, then make it either readable or fast.&rdquo; When you are developing games or other high performance applications, the making it fast part can consume a lot of your time.
+I can&rsquo;t count the number of hours I&rsquo;ve spent looking at call graphs. What do you do when you&rsquo;ve determined your bottleneck though? Most people start looking at common things like unraveling loops and recursion or creating look up tables (LUTs).">
+  <meta name="twitter:description" content="I&rsquo;ve always lived by the programming adage, &ldquo;Get it working, then make it either readable or fast.&rdquo; When you are developing games or other high performance applications, the making …">
+  <meta name="author" content=""/>
+  <meta name="twitter:card" content="summary" />
+  <meta property="og:url" content="https://icub3d.github.io/post/determining-determinism/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Non Impediti Ratione Cogitationis" />
+
+  <meta name="generator" content="Hugo 0.21" />
+  <link rel="canonical" href="https://icub3d.github.io/post/determining-determinism/" />
+  <link rel="alternate" href="https://icub3d.github.io/index.xml" type="application/rss+xml" title="Non Impediti Ratione Cogitationis">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.css" integrity="sha384-wITovz90syo1dJWVh32uuETPVEtGigN07tkttEqPv+uR2SE/mbQcG7ATL28aI9H0" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://icub3d.github.io/css/main.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" />
+  <link rel="stylesheet" href="https://icub3d.github.io/css/pygment_highlights.css" />
+  <link rel="stylesheet" href="https://icub3d.github.io/css/highlight.min.css" />
+
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'UA-37698200-1', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='//www.google-analytics.com/analytics.js'></script>
+
+</head>
+
+  <body>
+    <nav class="navbar navbar-default navbar-fixed-top navbar-custom">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="https://icub3d.github.io/">Non Impediti Ratione Cogitationis</a>
+    </div>
+
+    <div class="collapse navbar-collapse" id="main-navbar">
+      <ul class="nav navbar-nav navbar-right">
+        
+
+        
+
+        
+      </ul>
+    </div>
+
+    <div class="avatar-container">
+      <div class="avatar-img-border">
+        
+      </div>
+    </div>
+
+  </div>
+</nav>
+
+
+
+
+    
+  
+  
+  
+
+
+
+
+  
+
+  <header class="header-section ">
+    
+    <div class="intro-header no-img">
+      
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+            <div class="post-heading">
+              <h1>Determining Determinism</h1>
+                
+                
+                  <span class="post-meta">
+  Posted on August 3, 2012
+  
+</span>
+
+
+                
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+
+    
+<div class="container">
+  <div class="row">
+    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+      <article role="main" class="blog-post">
+        <p>I&rsquo;ve always lived by the programming adage, &ldquo;Get it working, then make
+it either readable or fast.&rdquo; When you are developing games or other
+high performance applications, the making it fast part can consume a
+lot of your time.</p>
+
+<p>I can&rsquo;t count the number of hours I&rsquo;ve spent looking at
+<a href="http://en.wikipedia.org/wiki/Call_graph">call graphs</a>. What do you do
+when you&rsquo;ve determined your bottleneck though?  Most people start
+looking at common things like unraveling loops and
+<a href="http://en.wikipedia.org/wiki/Recursion">recursion</a> or creating
+<a href="http://en.wikipedia.org/wiki/Lookup_table">look up tables</a>
+(LUTs). LUTs are a common practice in the gaming industry for things
+like trig functions. Why?  Well, their values are static. The value of
+sin(45°) will always be
+<a href="http://www.wolframalpha.com/input/?i=sin(45+deg)">0.7071067812</a>.</p>
+
+<p>There are two reasons that make a LUT useful. First, the cost of
+looking up a value in a hash or array is usually orders of magnitude
+smaller than performing the calculation multiple times. Second, the
+math functions being called are deterministic. Translation: the
+solution will always be the same for a given input.</p>
+
+<p>You may be asking what this has to do with
+<a href="http://en.wikipedia.org/wiki/Deterministic_algorithm">deterministic algorithms</a>. Well,
+you can take the idea of a LUT one step further, but I see this much
+less frequently even though it can be incredibly powerful. Any
+algorithm that is deterministic can have it&rsquo;s own LUT. This is often
+called <a href="http://en.wikipedia.org/wiki/Memoization">memoization</a>, but
+most people don&rsquo;t recognize that it&rsquo;s possible because the function is
+deterministic. Let me show you how it works. A normal fibonacci
+algorithm in <a href="http://golang.org/">go</a> might look like this:</p>
+
+<pre><code>func Fibonacci(n int64) int64 {  
+     var f int64  
+     if n &lt;= 1 {  
+          f = 1  
+     } else {  
+          f = Fibonacci(n-1) + Fibonacci(n-2)  
+     }  
+     return f  
+}  
+</code></pre>
+
+<p>This works fine for small values of <em>n</em> like 1 or 7. But when n
+is 100, this could take quite a bit of time to run. Because it&rsquo;s
+recursive, proving that the function is deterministic has huge
+gains. I&rsquo;ll leave the details of the proof to you, but for the sake of
+this post let&rsquo;s just assume it is (it is).</p>
+
+<p>Knowing that this function is deterministic is important! It means we
+can store the previously calculated values and return them or use them
+in calculating new values. Here is one possible way to do this:</p>
+
+<pre><code>var fibonacciLUT map[int64]int64
+
+func MemoizedFibonacci(n int64) int64 {  
+     var f int64  
+     if stored, ok := fibonacciLUT[n]; ok {  
+          return stored  
+     }  
+     if n &lt;= 1 {  
+          f = 1  
+     } else {  
+          f = MemoizedFibonacci(n-1) + MemoizedFibonacci(n-2)  
+     }  
+     fibonacciLUT[n] = f  
+     return f  
+}  
+</code></pre>
+
+<p>Not much has changed. First, we create a map (an array could also work
+in this case) to store the values. Next, before we start doing the
+computations, we look to see if we already have a stored result. If we
+do, then we return that. If not, we perform the calculation and save
+the value into our map.</p>
+
+<p>How much does this improve our performance? SO MUCH I HAVE TO USE CAPS
+TO SAY HOW MUCH!</p>
+
+<pre><code>$ go run fibonacci.go  
+50 iterations of Non-memoized took 5m37.824026s to complete.  
+50 iterations of Memoized took 106us to complete.  
+</code></pre>
+
+<p>Yes, you are reading that right. The normal calls took more than five
+minutes to run and the memoized version took 106 microseconds. You can
+see the entire program in <a href="https://gist.github.com/3244972">one of my gists</a>.</p>
+
+<p>So, why am I writing about this. Computer science is important! You
+need to understand things like deterministic algorithms,
+<a href="http://en.wikipedia.org/wiki/State_space_search">state-space graphs</a>,
+and everything else that you may have missed while you were on
+Facebook in your CS classes. They are what separate script kiddies
+from coding ninjas.</p>
+
+<p>You might say, &ldquo;The Zuckster never graduated!&rdquo; I don&rsquo;t care how or
+where you learn it. Whether its <a href="http://mit.edu/">MIT</a>,
+<a href="https://www.coursera.org/">Coursera</a>, or
+<a href="http://www.wikipedia.org/">Wikipedia</a>, good programmers need to
+understand these things. I&rsquo;ve come across too many people who can&rsquo;t
+answer fundamental computer science questions and I&rsquo;ll bet my bottom
+dollar that this problem is directly correlated to why I have to
+maintain unreadable, slow code.</p>
+
+<p>Go forth and learn!</p>
+
+      </article>
+
+      <ul class="pager blog-pager">
+        
+          <li class="previous">
+            <a href="https://icub3d.github.io/post/uphill-both-ways/" data-toggle="tooltip" data-placement="top" title="Uphill Both Ways">&larr; Previous Post</a>
+          </li>
+        
+        
+          <li class="next">
+            <a href="https://icub3d.github.io/post/every-american-should-see-wicked/" data-toggle="tooltip" data-placement="top" title="Every American Should See Wicked">Next Post &rarr;</a>
+          </li>
+        
+      </ul>
+
+      
+
+    </div>
+  </div>
+</div>
+
+    <footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <ul class="list-inline text-center footer-links">
+          
+          
+        </ul>
+        <p class="credits copyright text-muted">
+          
+          &nbsp;&bull;&nbsp;
+          2016
+
+          
+            &nbsp;&bull;&nbsp;
+            <a href="https://icub3d.github.io/">Non Impediti Ratione Cogitationis</a>
+          
+        </p>
+        
+        <p class="credits theme-by text-muted">
+          <a href="http://gohugo.io">Hugo v0.21</a> powered &nbsp;&bull;&nbsp; Theme by <a href="http://deanattali.com/beautiful-jekyll/">Beautiful Jekyll</a> adapted to <a href="https://github.com/halogenica/beautifulhugo">Beautiful Hugo</a>
+          
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.js" integrity="sha384-/y1Nn9+QQAipbNQWU65krzJralCnuOasHncUFXGkdwntGeSvQicrYkiUBwsgUqc1" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/contrib/auto-render.min.js" integrity="sha384-dq1/gEHSxPZQ7DdrM82ID4YVol9BYyU7GbWlIwnwyPzotpoc57wDw/guX8EaYGPx" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="https://icub3d.github.io/js/main.js"></script>
+<script src="https://icub3d.github.io/js/highlight.min.js"></script>
+<script> hljs.initHighlightingOnLoad(); </script>
+<script> renderMathInElement(document.body); </script>
+
+
+
+
+
+  </body>
+</html>
+

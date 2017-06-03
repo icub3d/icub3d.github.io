@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+  <title>Docker Private Networks and Nginx</title>
+  <meta property="og:title" content="Docker Private Networks and Nginx" />
+  <meta name="twitter:title" content="Docker Private Networks and Nginx" />
+  <meta name="description" content="Last time, I discussed setting up OpenVPN so I could access the systems on my home network remotely. One of the systems I use is nginx. I use it primarily as a reverse proxy to my others systems (gogs, drone, etc). The reasoning behind this is that I can use nginx as a sort of TLS termination proxy to all of my others systems. This way I only have to manage my certificates in one place.">
+  <meta property="og:description" content="Last time, I discussed setting up OpenVPN so I could access the systems on my home network remotely. One of the systems I use is nginx. I use it primarily as a reverse proxy to my others systems (gogs, drone, etc). The reasoning behind this is that I can use nginx as a sort of TLS termination proxy to all of my others systems. This way I only have to manage my certificates in one place.">
+  <meta name="twitter:description" content="Last time, I discussed setting up OpenVPN so I could access the systems on my home network remotely. One of the systems I use is nginx. I use it primarily as a reverse proxy to my others systems …">
+  <meta name="author" content=""/>
+  <meta name="twitter:card" content="summary" />
+  <meta property="og:url" content="https://icub3d.github.io/post/private-networks-nginx/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Non Impediti Ratione Cogitationis" />
+
+  <meta name="generator" content="Hugo 0.21" />
+  <link rel="canonical" href="https://icub3d.github.io/post/private-networks-nginx/" />
+  <link rel="alternate" href="https://icub3d.github.io/index.xml" type="application/rss+xml" title="Non Impediti Ratione Cogitationis">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.css" integrity="sha384-wITovz90syo1dJWVh32uuETPVEtGigN07tkttEqPv+uR2SE/mbQcG7ATL28aI9H0" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://icub3d.github.io/css/main.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" />
+  <link rel="stylesheet" href="https://icub3d.github.io/css/pygment_highlights.css" />
+  <link rel="stylesheet" href="https://icub3d.github.io/css/highlight.min.css" />
+
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'UA-37698200-1', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='//www.google-analytics.com/analytics.js'></script>
+
+</head>
+
+  <body>
+    <nav class="navbar navbar-default navbar-fixed-top navbar-custom">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="https://icub3d.github.io/">Non Impediti Ratione Cogitationis</a>
+    </div>
+
+    <div class="collapse navbar-collapse" id="main-navbar">
+      <ul class="nav navbar-nav navbar-right">
+        
+
+        
+
+        
+      </ul>
+    </div>
+
+    <div class="avatar-container">
+      <div class="avatar-img-border">
+        
+      </div>
+    </div>
+
+  </div>
+</nav>
+
+
+
+
+    
+  
+  
+  
+
+
+
+
+  
+
+  <header class="header-section ">
+    
+    <div class="intro-header no-img">
+      
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+            <div class="post-heading">
+              <h1>Docker Private Networks and Nginx</h1>
+                
+                
+                  <span class="post-meta">
+  Posted on March 10, 2016
+  
+</span>
+
+
+                
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+
+    
+<div class="container">
+  <div class="row">
+    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+      <article role="main" class="blog-post">
+        
+
+<p>Last time, I discussed setting up <a href="https://openvpn.net/">OpenVPN</a> so I
+could access the systems on my home network remotely. One of the
+systems I use is <a href="https://www.nginx.com/">nginx</a>. I use it primarily
+as a reverse proxy to my others systems (<a href="https://gogs.io/">gogs</a>,
+<a href="https://github.com/drone/drone">drone</a>, etc). The reasoning behind
+this is that I can use <em>nginx</em> as a sort of TLS termination proxy to all
+of my others systems. This way I only have to manage my certificates
+in one place. Using <a href="https://www.docker.com/">docker</a> private networks
+allows me to ensure that the systems are only accessed via <em>nginx</em> as
+well.</p>
+
+<p>I&rsquo;m going to use a few variables in the commands below to simplify
+their re-use.</p>
+
+<pre><code># This is the private network name.
+export DOCKER_NETWORK=marshians
+
+# This is our local DNS server.
+export LOCAL_DNS=192.168.0.1
+
+# These are the cert/key files for our certificates.
+export CERT=/path/to/your/cert.crt
+export KEY=/path/to/your/key.key
+</code></pre>
+
+<h1 id="docker-private-networking">Docker Private Networking</h1>
+
+<p>Once again, I did all of this on a single
+<a href="https://www.archlinux.org/">Arch Linux</a> server, so not all of the
+commands may be identical in your case. That being said, the first
+thing we need to do is setup a private network that <em>nginx</em> can use to
+communicate to all the other systems. Doing this, none of the other
+services need to expose any ports to the outside world and the won&rsquo;t
+be accessible except through <em>nginx</em>.</p>
+
+<pre><code>docker network create $DOCKER_NETWORK
+</code></pre>
+
+<p>You can read more about networks in the
+<a href="https://docs.docker.com/engine/userguide/networking/dockernetworks/">Docker documentation</a>.</p>
+
+<h1 id="docker-dns-resolution">Docker DNS Resolution</h1>
+
+<p>In my case, I am using local DNS to resolve my host names and I&rsquo;m
+referring to those host names in my <em>nginx</em> config. If you are doing the
+same, you&rsquo;ll need to tell <em>docker</em> to use a different DNS server when it
+starts up because it defaults to using public DNS servers that won&rsquo;t
+know anything about your internal DNS. I did it this way.</p>
+
+<pre><code>sudo -s
+cat &gt;/etc/systemd/system/docker.service
+[Unit]
+Description=Docker Application Container Engine
+Documentation=https://docs.docker.com
+After=network.target docker.socket
+Requires=docker.socket
+
+[Service]
+Type=notify
+ExecStart=/usr/bin/docker daemon -H fd:// --dns $LOCAL_DNS
+MountFlags=slave
+LimitNOFILE=1048576
+LimitNPROC=1048576
+LimitCORE=infinity
+TimeoutStartSec=0
+
+[Install]
+WantedBy=multi-user.target
+^D
+exit
+sudo systemctl daemon-reload
+sudo systemctl restart docker
+</code></pre>
+
+<p>Note that you&rsquo;ll have to replace <em>$LOCAL_DNS</em> here
+yourself. Basically, all I&rsquo;m doing is taking the existing service file
+and adding the <em>&ndash;dns</em> flag when starting the daemon.</p>
+
+<h1 id="nginx-initialization">Nginx Initialization</h1>
+
+<p>At this point, we can now get started with <em>nginx</em>. The first thing we
+need to do is create a data volume to store our configuration. With
+that done, we can start up <em>nginx</em> to load the data volume with the
+default configurations and then stop it so we can do our own
+configuring.</p>
+
+<pre><code>docker volume create --name nginx-data
+docker run -d --name=nginx -p 80:80 -p 443:443 --net=$DOCKER_NETWORK --restart=always -v nginx-data:/etc/nginx nginx
+docker stop nginx
+</code></pre>
+
+<p>One thing to point out here is that we are using the <em>&ndash;net</em> flag to
+make sure <em>nginx</em> can talk to the other services we&rsquo;ll create in
+there. One other thing we can do to setup our container is to have
+<em>nginx</em> logs redirect to <em>stdout</em> and <em>stderr</em>. This will send the logs
+to <em>docker</em> so that <em>docker logs</em> works correctly. This can be done
+using symlinks.</p>
+
+<pre><code>sudo -s
+cd /var/lib/docker/volumes/nginx-data/_data/
+mkdir log
+cd log
+ln -s /dev/stdout access.log
+ln -s /dev/stderr error.log
+exit
+</code></pre>
+
+<p>In our configuration, we can now point to <em>/etc/nginx/log/access.log</em>
+or <em>/etc/nginx/log/error.log</em> to send logs to <em>docker</em>. You&rsquo;ll see that
+later below.</p>
+
+<h1 id="ssl-tls-certificates">SSL/TLS Certificates</h1>
+
+<p>I thought I&rsquo;d just take a minute here to talk about SSL/TLS
+certificates. In my case, I have a wildcard certificate. The below
+configurations are based on that. They should also work if your have a
+multi-domain certificate. If you plan on using a single certificate
+for each domain, then you&rsquo;ll want to copy all of them into the
+container and use each file in the right place.</p>
+
+<p>If you only have one certificate, you can setup a single SSL/TLS
+server configuration and then proxy directory locations. For example,
+<em>/gogs</em> could proxy to your <em>gogs</em> server and <em>/drone</em> could proxy to
+your <em>drone</em> server. If you aren&rsquo;t interested in using SSL/TLS at all,
+you can simply ignore those parts and configuration <em>nginx</em> just to
+proxy.</p>
+
+<p>I believe it&rsquo;s possible to use
+<a href="https://letsencrypt.org/">Let&rsquo;s Encrypt</a> for this but I haven&rsquo;t taken
+the time to do it because I still have a valid wildcard
+certificate. When they expire, I plan on setting that up and I&rsquo;ll
+write about that a well.</p>
+
+<h1 id="nginx-configuration">Nginx Configuration.</h1>
+
+<p>OK, let&rsquo;s get to configuring. First, we need to copy over our
+certificate and key. I also make my own dhparam file.</p>
+
+<pre><code>sudo -s
+cp $CERT /var/lib/docker/volumes/nginx-data/_data
+cp $KEY /var/lib/docker/volumes/nginx-data/_data
+openssl dhparam -out /var/lib/docker/volumes/nginx-data/_data/dhparam.pem 2048
+exit
+</code></pre>
+
+<p>With those in place, we can now get to the actual configuration. I&rsquo;ll start with two configuration snippets I use to keep the main configuration simple.</p>
+
+<pre><code>sudo -s
+cat &gt;/var/lib/docker/volumes/nginx-data/_data/proxy_params
+proxy_set_header Host $host;
+proxy_set_header X-Real-IP $remote_addr;
+proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+proxy_set_header X-Forwarded-Proto $scheme;
+^D
+cat &gt;/var/lib/docker/volumes/nginx-data/_data/ssl_params
+ssl_certificate /etc/nginx/star.themarshians.com.crt;
+ssl_certificate_key /etc/nginx/star.themarshians.com.key;
+
+ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+ssl_ciphers 'EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH';
+ssl_prefer_server_ciphers on;
+ssl_session_cache shared:SSL:10m;
+ssl_dhparam /etc/nginx/dhparam.pem;
+^D
+exit
+</code></pre>
+
+<p>The _proxy<em>params</em> are used to setup proxying and the _ssl<em>params</em> is
+used for the SSL/TLS configuration. Since all of the servers use the
+same parameters, using these files made it cleaner. Now for the main
+configuration.</p>
+
+<pre><code>sudo -s
+cat &gt;/var/lib/docker/volumes/nginx-data/_data/nginx.conf
+user  nginx;
+worker_processes  1;
+
+error_log  /etc/nginx/log/error.log warn;
+pid        /var/run/nginx.pid;
+
+
+events {
+    worker_connections  1024;
+}
+
+
+http {
+    include       /etc/nginx/mime.types;
+    default_type  application/octet-stream;
+
+    log_format  main  '$remote_addr - $remote_user [$time_local] &quot;$request&quot; '
+                      '$status $body_bytes_sent &quot;$http_referer&quot; '
+                      '&quot;$http_user_agent&quot; &quot;$http_x_forwarded_for&quot;';
+
+    access_log  /etc/nginx/log/access.log  main;
+    sendfile        on;
+    keepalive_timeout  65;
+    gzip  on;
+
+    server {
+           listen 80;
+       server_name *.themarshians.com;
+       return 301 https://$server_name$request_uri;
+    }
+
+    server {
+        listen 443 ssl;
+        server_name git.themarshians.com;
+        access_log /etc/nginx/log/access.log;
+        error_log /etc/nginx/log/error.log;
+
+        include /etc/nginx/ssl_params;
+
+        location / {
+          include /etc/nginx/proxy_params;
+          proxy_pass http://gogs:3000;
+        }
+    }
+
+    server {
+        listen 443 ssl;
+        server_name drone.themarshians.com;
+        access_log /etc/nginx/log/access.log;
+        error_log /etc/nginx/log/error.log;
+
+        include /etc/nginx/ssl_params;
+
+        location / {
+          include /etc/nginx/proxy_params;
+          proxy_pass http://drone:8000;
+          proxy_redirect http://drone:8000 https://drone.themarshians.com;
+        }
+    }
+}
+^D
+exit
+</code></pre>
+
+<p>Most of this stuff is fairly standard. In the first server section I
+listen on port <em>80</em> and redirect any traffic there to the HTTPS
+equivalent. The second is for my <em>gogs</em> server and the third is for my
+<em>drone</em> server.</p>
+
+<p>Each of the proxy&rsquo;s have a unique <em>server_name</em> to which my local DNS
+resolves. Within the location section of each, the <em>proxy_pass</em> value
+is the URL to which I want to direct traffic. The names <em>gogs</em> and
+<em>drone</em> are the <em>docker</em> names of the other containers. In other posts
+I&rsquo;ll describe setting up those services but the gist of it is that
+when you run a container in <em>docker</em> with the <em>&ndash;name</em> flag, all other
+systems within the same network can refer to it by that name. Since
+all of these containers are within our private network we can use
+these names and don&rsquo;t have to worry about IP Addresses changing.</p>
+
+<p>To get <em>drone</em> working, I had to include a _proxy<em>redirect</em> value but
+otherwise the server configurations are the same. You could add as
+many of them as you wanted for other services. Perhaps you have a
+private wiki or some private cloud software. Adding them to the
+configuration is trivial. Once done, start up the container.</p>
+
+<pre><code>docker start nginx
+</code></pre>
+
+<h1 id="conclusion">Conclusion</h1>
+
+<p>Using <em>nginx</em> as a proxy for all your services is a great idea! You can
+make sure they all have valid certificates from a single place. Add
+<em>docker</em> private networks into the mix and you can ensure that the
+systems are only being accessed through the proxy.</p>
+
+      </article>
+
+      <ul class="pager blog-pager">
+        
+          <li class="previous">
+            <a href="https://icub3d.github.io/post/private-dev-vpn/" data-toggle="tooltip" data-placement="top" title="Securing Your Connection With OpenVPN">&larr; Previous Post</a>
+          </li>
+        
+        
+      </ul>
+
+      
+
+    </div>
+  </div>
+</div>
+
+    <footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <ul class="list-inline text-center footer-links">
+          
+          
+        </ul>
+        <p class="credits copyright text-muted">
+          
+          &nbsp;&bull;&nbsp;
+          2016
+
+          
+            &nbsp;&bull;&nbsp;
+            <a href="https://icub3d.github.io/">Non Impediti Ratione Cogitationis</a>
+          
+        </p>
+        
+        <p class="credits theme-by text-muted">
+          <a href="http://gohugo.io">Hugo v0.21</a> powered &nbsp;&bull;&nbsp; Theme by <a href="http://deanattali.com/beautiful-jekyll/">Beautiful Jekyll</a> adapted to <a href="https://github.com/halogenica/beautifulhugo">Beautiful Hugo</a>
+          
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.js" integrity="sha384-/y1Nn9+QQAipbNQWU65krzJralCnuOasHncUFXGkdwntGeSvQicrYkiUBwsgUqc1" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/contrib/auto-render.min.js" integrity="sha384-dq1/gEHSxPZQ7DdrM82ID4YVol9BYyU7GbWlIwnwyPzotpoc57wDw/guX8EaYGPx" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="https://icub3d.github.io/js/main.js"></script>
+<script src="https://icub3d.github.io/js/highlight.min.js"></script>
+<script> hljs.initHighlightingOnLoad(); </script>
+<script> renderMathInElement(document.body); </script>
+
+
+
+
+
+  </body>
+</html>
+

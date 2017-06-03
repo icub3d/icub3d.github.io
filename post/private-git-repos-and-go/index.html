@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+  <title>Private Git Repos And Go</title>
+  <meta property="og:title" content="Private Git Repos And Go" />
+  <meta name="twitter:title" content="Private Git Repos And Go" />
+  <meta name="description" content="I spent a little bit of time this weekend tinkering on a small project I&rsquo;ve been thinking about for quite a while. Google&rsquo;s new(ish) language Go seemed like a good candidate for the project. One of the great features of Go is that your can import external code sources relatively easily. I have a small private repository at home and I wanted to simplify the process of importing the code and maintaining the repositories.">
+  <meta property="og:description" content="I spent a little bit of time this weekend tinkering on a small project I&rsquo;ve been thinking about for quite a while. Google&rsquo;s new(ish) language Go seemed like a good candidate for the project. One of the great features of Go is that your can import external code sources relatively easily. I have a small private repository at home and I wanted to simplify the process of importing the code and maintaining the repositories.">
+  <meta name="twitter:description" content="I spent a little bit of time this weekend tinkering on a small project I&rsquo;ve been thinking about for quite a while. Google&rsquo;s new(ish) language Go seemed like a good candidate for the …">
+  <meta name="author" content=""/>
+  <meta name="twitter:card" content="summary" />
+  <meta property="og:url" content="https://icub3d.github.io/post/private-git-repos-and-go/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Non Impediti Ratione Cogitationis" />
+
+  <meta name="generator" content="Hugo 0.21" />
+  <link rel="canonical" href="https://icub3d.github.io/post/private-git-repos-and-go/" />
+  <link rel="alternate" href="https://icub3d.github.io/index.xml" type="application/rss+xml" title="Non Impediti Ratione Cogitationis">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.css" integrity="sha384-wITovz90syo1dJWVh32uuETPVEtGigN07tkttEqPv+uR2SE/mbQcG7ATL28aI9H0" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://icub3d.github.io/css/main.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" />
+  <link rel="stylesheet" href="https://icub3d.github.io/css/pygment_highlights.css" />
+  <link rel="stylesheet" href="https://icub3d.github.io/css/highlight.min.css" />
+
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'UA-37698200-1', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='//www.google-analytics.com/analytics.js'></script>
+
+</head>
+
+  <body>
+    <nav class="navbar navbar-default navbar-fixed-top navbar-custom">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="https://icub3d.github.io/">Non Impediti Ratione Cogitationis</a>
+    </div>
+
+    <div class="collapse navbar-collapse" id="main-navbar">
+      <ul class="nav navbar-nav navbar-right">
+        
+
+        
+
+        
+      </ul>
+    </div>
+
+    <div class="avatar-container">
+      <div class="avatar-img-border">
+        
+      </div>
+    </div>
+
+  </div>
+</nav>
+
+
+
+
+    
+  
+  
+  
+
+
+
+
+  
+
+  <header class="header-section ">
+    
+    <div class="intro-header no-img">
+      
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+            <div class="post-heading">
+              <h1>Private Git Repos And Go</h1>
+                
+                
+                  <span class="post-meta">
+  Posted on December 23, 2012
+  
+</span>
+
+
+                
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+
+    
+<div class="container">
+  <div class="row">
+    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+      <article role="main" class="blog-post">
+        
+
+<p>I spent a little bit of time this weekend tinkering on a small project
+I&rsquo;ve been thinking about for quite a while. Google&rsquo;s new(ish) language
+Go seemed like a good candidate for the project. One of the great
+features of <a href="http://golang.org/">Go</a> is that your can import external
+code sources relatively easily. I have a small private repository at
+home and I wanted to simplify the process of importing the code and
+maintaining the repositories. In the end, I chose
+<a href="https://github.com/sitaramc/gitolite">Gitolite</a> +
+<a href="https://git.wiki.kernel.org/index.php/Gitweb">Gitweb</a> on an
+<a href="https://www.archlinux.org/">Arch</a> Linux system. Here is how I did it.</p>
+
+<h2 id="preparations">Preparations</h2>
+
+<p>Since we are using git, you&rsquo;ll want to make sure you have that
+installed. We will also be using
+<a href="http://httpd.apache.org/">Apache httpd</a> for gitweb and to facilitate
+go&rsquo;s remote import mechanism. On an Arch Linux system, you can do that
+in a terminal with:</p>
+
+<pre><code>pacman -S git apache  
+</code></pre>
+
+<p>The git package will create a git user that we will use during this
+process. The user needs a little help though. As root:</p>
+
+<pre><code>usermod -d /srv/git git
+passwd -d git
+</code></pre>
+
+<p>We are simply telling the system that the users home directory should
+be <em>/srv/git</em> and it should not have a password (i.e. can&rsquo;t log
+in). Make the home directory and give it the proper permissions:</p>
+
+<pre><code>mkdir /srv/git
+chown git.git /srv/git
+chmod 750 /srv/git
+</code></pre>
+
+<p>We also want the http user to be in the git group so that gitweb can
+read files from <em>/srv/git</em> and then restart httpd. You can do this by
+running the following commands:</p>
+
+<pre><code>usermod -a -G git http
+systemctl restart httpd.service
+</code></pre>
+
+<p>From this point on, I&rsquo;ll presume you are using the git user and are in
+his <em>$HOME</em> directory unless otherwise specified.</p>
+
+<h2 id="gitolite">Gitolite</h2>
+
+<p>Gitolite is a great git repository management tool that is used by
+quite a few high profile project (e.g. the
+<a href="http://git.kernel.org/">Linux kernel</a>). The big advantages it has
+over using the standard git tools like
+<a href="http://www.kernel.org/pub/software/scm/git/docs/git-daemon.html">git-daemon</a>
+or
+<a href="http://www.kernel.org/pub/software/scm/git/docs/git-http-backend.html">git-http-backend</a>
+is that it is extremely simple to use and you can manage it remotely
+once it is setup.</p>
+
+<p>I simply pull the latest from <a href="https://github.com/">GitHub</a> and do the
+install:</p>
+
+<pre><code>git clone git://github.com/sitaramc/gitolite
+mkdir $HOME/bin
+gitolite/install -ln
+</code></pre>
+
+<p>Gitolite uses SSH for authentication via public keys. As such, you&rsquo;ll
+want to have your public key somewhere on the system. I copied mine to
+<em>/tmp/username.pub</em>. Make sure your file&rsquo;s base name is the name of the
+user you plan to log in with when accessing the repositories. Then run
+the setup:</p>
+
+<pre><code>bin/gitolite setup /tmp/username.pub
+</code></pre>
+
+<p>I made a few changes in <em>$HOME/.gitolite.rc</em> to facilitate httpd being
+able to access the repositories. Modify the <em>UMASK</em> and
+<em>GIT_CONFIG_KEYS</em> to:</p>
+
+<pre><code>UMASK           =&gt; 0027,
+GIT_CONFIG_KEYS =&gt; 'gitweb\.(owner|description|category)*',
+</code></pre>
+
+<p>This will give the git group the ability to read the repositories and allow the gitolite configuration file to store some basic gitweb configuration options. Finally, make sure that the repositories path is accessible by the git group:</p>
+
+<pre><code>chmod g+rx repositories
+</code></pre>
+
+<p>Gitolite is ready to use! You configure it and setup repositories by cloning the gitolite-admin repository:</p>
+
+<pre><code>git clone git@git.hostname.com:gitolite-admin
+</code></pre>
+
+<p>Here is my <em>conf/gitolite.conf</em> file:</p>
+
+<pre><code>@webs = config testing
+
+repo gitolite-admin
+    RW+     =   jmarsh
+
+repo config
+    RW+     =   jmarsh
+  config gitweb.owner = joshua@themarshians.com
+  config gitweb.description = A recursive JSON config parser.
+
+repo testing
+    RW+     =   @all
+  config gitweb.owner = joshua@themarshians.com
+  config gitweb.description = A test playground for connection and gitolite.
+
+repo @webs
+  R       =   gitweb
+</code></pre>
+
+<p>I setup the <em>@webs</em> group to allow gitolite to manage the projects
+list. The user <em>gitweb</em> is a special user for gitolite. Any repository
+that givea that user read (R) permissions will be added to the file
+<em>$HOME/projects.list</em>. Gitweb can then use this file to display the
+repositories you want visible. Any repositories that you want gitweb
+to display simply need to be added to the <em>@webs</em> group. You can see
+Gitolite&rsquo;s documentation for more information on what the rest of the
+configurations mean.</p>
+
+<p>Once you are satisfied with your configurations, commit the changes
+and push it back to the server. Gitolite will do the rest, including
+creating new repositories as necessary. Remember, gitolite will use
+the SSH public key you gave it for authentication, so make sure you
+are pushing from a system that has the corresponding private key.</p>
+
+<h2 id="gitweb">Gitweb</h2>
+
+<p>Gitweb comes with git and is fairly easy to setup. I decided to use
+Apache httpd (mostly because I&rsquo;m more familiar with it) which adds a
+few steps, but it is still relatively simple. You&rsquo;ll need to edit the
+following configuration files and restart httpd as root. I&rsquo;m presuming
+you have a fresh install of httpd, so let&rsquo;s add a virtual host. Find
+the line below in <em>/etc/httpd/conf/httpd.conf</em> and uncomment it:</p>
+
+<pre><code>Include conf/extra/httpd-vhosts.conf
+</code></pre>
+
+<p>Now edit <em>/etc/httpd/conf/extra/httpd-vhosts.conf</em> and add the virtual
+host at the end of the file:</p>
+
+<pre><code>&lt;VirtualHost *:80&gt;
+    ServerName    gitserver
+    ServerAlias   git.hostname.com
+    DocumentRoot  /srv/http/gitweb
+    SetEnv        GITWEB_CONFIG   /etc/conf.d/git-web.conf
+    &lt;Directory /srv/http/gitweb&gt;
+            Options ExecCGI FollowSymLinks
+        AddHandler cgi-script cgi
+        DirectoryIndex gitweb.cgi
+        RewriteEngine On
+        RewriteCond %{REQUEST_FILENAME} !-f
+        RewriteCond %{REQUEST_FILENAME} !-d
+        RewriteRule ^.* /gitweb.cgi/$0 [L,PT]
+    &lt;/Directory&gt;
+&lt;/VirtualHost&gt;
+</code></pre>
+
+<p>If you aren&rsquo;t using an Arch Linux package of httpd, you may need to
+figure out the right place to add your virtual host, but the virtual
+host information should work as is. We are basically using the gitweb
+script as a CGI script. Since we are using <em>/srv/http/gitweb</em> as the
+base directory, we&rsquo;ll want to symlink that to gitweb&rsquo;s working
+directory:</p>
+
+<pre><code>ln -s /usr/share/gitweb /srv/http/gitweb
+</code></pre>
+
+<p>Next, restart httpd:</p>
+
+<pre><code>systemctl restart httpd.service
+</code></pre>
+
+<p>With that done, we only need to modify gitweb&rsquo;s configuration file
+<em>/etc/conf.d/git-web.conf</em>. Here is what mine looks like:</p>
+
+<pre><code>our $git_temp = &quot;/tmp&quot;;
+our $site_name = &quot;git repos&quot;;
+our $projectroot = &quot;/srv/git/repositories&quot;;
+our $projects_list = &quot;/srv/git/projects.list&quot;;
+
+$feature{'highlight'}{'default'} = [1];
+
+@git_base_url_list = ( &quot;ssh://git\@git.hostname.com&quot; );
+
+
+# We want to append the path request from the go get which we can get
+# from the REQUEST_URI
+$go_repo_path = $ENV{'REQUEST_URI'};
+$go_repo_path =~ s/\?.*//g;
+$go_prefix = $go_repo_path;
+if ($go_repo_path !~ m/\.git$/ &amp;&amp; $go_repo_path !~ m/\/$/) { $go_repo_path .= &quot;.git&quot;; }
+our $site_html_head_string = &quot;&quot;;
+</code></pre>
+
+<p>The first half of the file is fairly common gitweb configuring. Note
+that we set the <em>$projects_list</em> to be the <em>projects.list</em> file that
+Gitolite is generating. The magic for Go happens in the last half of
+the file. Go can pull from external version control systems (VCS), but
+the format seemed bulky to me. Originally, I had to use an import
+similar to:</p>
+
+<pre><code>import &quot;git.hostname.com/git/testing.git/package&quot;
+</code></pre>
+
+<p>The addition of the meta tag to Gitweb&rsquo;s pages made it possible to
+import with something much more readable and more akin to importing
+from a public repository like GitHub.</p>
+
+<pre><code>import &quot;git.hostname.com/testing/package&quot;
+</code></pre>
+
+<p>The Perl code essentially uses some regular expressions to generate a
+meta tag that Go&rsquo;s remote pulling feature will recognize. In order for
+it to work seamlessly Go needs the meta tag to include the exact path
+being imported to map to an exact repository. We can get that
+information from the <em>REQUEST_URI</em> that Go sends Gitweb. So, in my
+example import above, the meta tag would end up looking something
+like:</p>
+
+<pre><code>&lt;meta name=&quot;go-import&quot; content=&quot;git.hostname.com/testing git ssh://git\@git.hostname.com/testing.git\&quot;&gt;&lt;/meta&gt;
+</code></pre>
+
+<h2 id="it-works">It Works!</h2>
+
+<p>With that done, Gitweb is now setup to work well with Go&rsquo;s remote import feature. I can run something like</p>
+
+<pre><code>go get git.hostname.com/config
+</code></pre>
+
+<p>to get the package, or simply import that in other code and Go will
+fetch it for me.</p>
+
+<p>All of this came together after a lot of searching on the
+internet. Here are some links I used to get this all working:</p>
+
+<ul>
+<li><a href="http://golang.org/cmd/go/#hdr-Remote_import_path_syntax">Go&rsquo;s get/remote documentation</a></li>
+<li><a href="http://sitaramc.github.com/gitolite/master-toc.html">Gitolite&rsquo;s Manual</a></li>
+<li><a href="http://www.kernel.org/pub/software/scm/git/docs/gitweb.conf.html">Gitweb&rsquo;s gitweb.conf manual page</a></li>
+</ul>
+
+      </article>
+
+      <ul class="pager blog-pager">
+        
+          <li class="previous">
+            <a href="https://icub3d.github.io/post/america-is-falling-for-it/" data-toggle="tooltip" data-placement="top" title="America Is Falling For It">&larr; Previous Post</a>
+          </li>
+        
+        
+          <li class="next">
+            <a href="https://icub3d.github.io/post/vim-and-go/" data-toggle="tooltip" data-placement="top" title="Vim and Go">Next Post &rarr;</a>
+          </li>
+        
+      </ul>
+
+      
+
+    </div>
+  </div>
+</div>
+
+    <footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <ul class="list-inline text-center footer-links">
+          
+          
+        </ul>
+        <p class="credits copyright text-muted">
+          
+          &nbsp;&bull;&nbsp;
+          2016
+
+          
+            &nbsp;&bull;&nbsp;
+            <a href="https://icub3d.github.io/">Non Impediti Ratione Cogitationis</a>
+          
+        </p>
+        
+        <p class="credits theme-by text-muted">
+          <a href="http://gohugo.io">Hugo v0.21</a> powered &nbsp;&bull;&nbsp; Theme by <a href="http://deanattali.com/beautiful-jekyll/">Beautiful Jekyll</a> adapted to <a href="https://github.com/halogenica/beautifulhugo">Beautiful Hugo</a>
+          
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.js" integrity="sha384-/y1Nn9+QQAipbNQWU65krzJralCnuOasHncUFXGkdwntGeSvQicrYkiUBwsgUqc1" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/contrib/auto-render.min.js" integrity="sha384-dq1/gEHSxPZQ7DdrM82ID4YVol9BYyU7GbWlIwnwyPzotpoc57wDw/guX8EaYGPx" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="https://icub3d.github.io/js/main.js"></script>
+<script src="https://icub3d.github.io/js/highlight.min.js"></script>
+<script> hljs.initHighlightingOnLoad(); </script>
+<script> renderMathInElement(document.body); </script>
+
+
+
+
+
+  </body>
+</html>
+

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+  <title>Don&#39;t Reinvent the Wheel</title>
+  <meta property="og:title" content="Don&#39;t Reinvent the Wheel" />
+  <meta name="twitter:title" content="Don&#39;t Reinvent the Wheel" />
+  <meta name="description" content="This last week, I had the opportunity to attend the OpenWest conference. I can&rsquo;t say enough about how amazing it was. If you have the opportunity next year to attend, you should definitely do it! During the conference, I was able to present on some of my recent blog posts. I was also able to attend a session and a keynote from Rasmus Lerdorf and many other really smart people. I felt like everyone came together with a common goal of sharing the knowledge they had and learning from the experience of others.">
+  <meta property="og:description" content="This last week, I had the opportunity to attend the OpenWest conference. I can&rsquo;t say enough about how amazing it was. If you have the opportunity next year to attend, you should definitely do it! During the conference, I was able to present on some of my recent blog posts. I was also able to attend a session and a keynote from Rasmus Lerdorf and many other really smart people. I felt like everyone came together with a common goal of sharing the knowledge they had and learning from the experience of others.">
+  <meta name="twitter:description" content="This last week, I had the opportunity to attend the OpenWest conference. I can&rsquo;t say enough about how amazing it was. If you have the opportunity next year to attend, you should definitely do …">
+  <meta name="author" content=""/>
+  <meta name="twitter:card" content="summary" />
+  <meta property="og:url" content="https://icub3d.github.io/post/dont-reinvent-the-wheel/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Non Impediti Ratione Cogitationis" />
+
+  <meta name="generator" content="Hugo 0.21" />
+  <link rel="canonical" href="https://icub3d.github.io/post/dont-reinvent-the-wheel/" />
+  <link rel="alternate" href="https://icub3d.github.io/index.xml" type="application/rss+xml" title="Non Impediti Ratione Cogitationis">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.css" integrity="sha384-wITovz90syo1dJWVh32uuETPVEtGigN07tkttEqPv+uR2SE/mbQcG7ATL28aI9H0" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://icub3d.github.io/css/main.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" />
+  <link rel="stylesheet" href="https://icub3d.github.io/css/pygment_highlights.css" />
+  <link rel="stylesheet" href="https://icub3d.github.io/css/highlight.min.css" />
+
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'UA-37698200-1', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='//www.google-analytics.com/analytics.js'></script>
+
+</head>
+
+  <body>
+    <nav class="navbar navbar-default navbar-fixed-top navbar-custom">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="https://icub3d.github.io/">Non Impediti Ratione Cogitationis</a>
+    </div>
+
+    <div class="collapse navbar-collapse" id="main-navbar">
+      <ul class="nav navbar-nav navbar-right">
+        
+
+        
+
+        
+      </ul>
+    </div>
+
+    <div class="avatar-container">
+      <div class="avatar-img-border">
+        
+      </div>
+    </div>
+
+  </div>
+</nav>
+
+
+
+
+    
+  
+  
+  
+
+
+
+
+  
+
+  <header class="header-section ">
+    
+    <div class="intro-header no-img">
+      
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+            <div class="post-heading">
+              <h1>Don&#39;t Reinvent the Wheel</h1>
+                
+                
+                  <span class="post-meta">
+  Posted on May 5, 2013
+  
+</span>
+
+
+                
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+
+    
+<div class="container">
+  <div class="row">
+    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+      <article role="main" class="blog-post">
+        <p>This last week, I had the opportunity to attend the
+<a href="http://www.openwest.org/">OpenWest</a> conference. I can&rsquo;t say enough
+about how amazing it was. If you have the opportunity next year to
+attend, you should definitely do it! During the conference, I was able
+to <a href="http://joind.in/talk/view/8316">present</a> on some of my recent blog
+posts. I was also able to attend a session and a keynote from
+<a href="http://en.wikipedia.org/wiki/Rasmus_Lerdorf">Rasmus Lerdorf</a> and many
+other really smart people. I felt like everyone came together with a
+common goal of sharing the knowledge they had and learning from the
+experience of others.</p>
+
+<p>If I had to list the most important thing I got out of it, it would be
+&ldquo;don&rsquo;t reinvent the wheel.&rdquo; As is the case with many hackers, I often
+find myself with a chip on my shoulder. I see some open source program
+or piece of code and immediately think, &ldquo;I could do it better.&rdquo; The
+reality is that while I might be able to do it better, the time and
+effort involved in doing it better takes time away from bringing my
+own new ideas to fruition.</p>
+
+<p>While there are cases where it&rsquo;s worthwhile to rewrite something
+yourself, they definitely should not be a regular part of your
+programming. The beauty of open source software is that we can
+leverage the work that someone else has already done. This enables us
+to make our ideas reality at a faster pace than in the proprietary
+world.</p>
+
+<p>The goal of my presentation was to provide a perfect example of
+this. By leveraging the work already done by really smart people, I
+was able to take an <a href="https://github.com/icub3d/home">idea</a> (albeit a
+small one) and have a working concept in just a couple of weekends
+worth of work. If I had tried to do the same project without
+<a href="http://angularjs.org/">AngularJS</a>, <a href="http://golang.org/">Go</a>, and
+<a href="https://developers.google.com/appengine/">App Engine</a> it would have
+easily taken months.</p>
+
+<p>In the open source world we have the opportunity to stand on the
+shoulders of
+giants<sup><a href="http://en.wikipedia.org/wiki/Standing_on_the_shoulders_of_giants">1</a></sup>. Let&rsquo;s
+use that opportunity to our advantage and accelerate the rate of
+innovation.</p>
+
+      </article>
+
+      <ul class="pager blog-pager">
+        
+          <li class="previous">
+            <a href="https://icub3d.github.io/post/hardcore-google-communicating-angularjs/" data-toggle="tooltip" data-placement="top" title="Hardcore Google - RESTful Communication With AngularJS">&larr; Previous Post</a>
+          </li>
+        
+        
+          <li class="next">
+            <a href="https://icub3d.github.io/post/godoc-systemd/" data-toggle="tooltip" data-placement="top" title="Hosting Your Own Godoc">Next Post &rarr;</a>
+          </li>
+        
+      </ul>
+
+      
+
+    </div>
+  </div>
+</div>
+
+    <footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <ul class="list-inline text-center footer-links">
+          
+          
+        </ul>
+        <p class="credits copyright text-muted">
+          
+          &nbsp;&bull;&nbsp;
+          2016
+
+          
+            &nbsp;&bull;&nbsp;
+            <a href="https://icub3d.github.io/">Non Impediti Ratione Cogitationis</a>
+          
+        </p>
+        
+        <p class="credits theme-by text-muted">
+          <a href="http://gohugo.io">Hugo v0.21</a> powered &nbsp;&bull;&nbsp; Theme by <a href="http://deanattali.com/beautiful-jekyll/">Beautiful Jekyll</a> adapted to <a href="https://github.com/halogenica/beautifulhugo">Beautiful Hugo</a>
+          
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.js" integrity="sha384-/y1Nn9+QQAipbNQWU65krzJralCnuOasHncUFXGkdwntGeSvQicrYkiUBwsgUqc1" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/contrib/auto-render.min.js" integrity="sha384-dq1/gEHSxPZQ7DdrM82ID4YVol9BYyU7GbWlIwnwyPzotpoc57wDw/guX8EaYGPx" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="https://icub3d.github.io/js/main.js"></script>
+<script src="https://icub3d.github.io/js/highlight.min.js"></script>
+<script> hljs.initHighlightingOnLoad(); </script>
+<script> renderMathInElement(document.body); </script>
+
+
+
+
+
+  </body>
+</html>
+

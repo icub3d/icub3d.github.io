@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+  <title>Cross Compiling Go Applications</title>
+  <meta property="og:title" content="Cross Compiling Go Applications" />
+  <meta name="twitter:title" content="Cross Compiling Go Applications" />
+  <meta name="description" content="In a recent discussion on Go&rsquo;s Google Plus Community, some questions came up about cross compiling. In a default installation of Go, cross compiling is not enabled. It only builds to toolchains for your current operating system and architecture. Since all of my computers are amd64, but some of the applications I build need to run on i386, I thought I&rsquo;d share how I go about doing it.
+I use Arch linux, so I have provided a package in AUR for doing this.">
+  <meta property="og:description" content="In a recent discussion on Go&rsquo;s Google Plus Community, some questions came up about cross compiling. In a default installation of Go, cross compiling is not enabled. It only builds to toolchains for your current operating system and architecture. Since all of my computers are amd64, but some of the applications I build need to run on i386, I thought I&rsquo;d share how I go about doing it.
+I use Arch linux, so I have provided a package in AUR for doing this.">
+  <meta name="twitter:description" content="In a recent discussion on Go&rsquo;s Google Plus Community, some questions came up about cross compiling. In a default installation of Go, cross compiling is not enabled. It only builds to toolchains …">
+  <meta name="author" content=""/>
+  <meta name="twitter:card" content="summary" />
+  <meta property="og:url" content="https://icub3d.github.io/post/go-cross-compilers-linux/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Non Impediti Ratione Cogitationis" />
+
+  <meta name="generator" content="Hugo 0.21" />
+  <link rel="canonical" href="https://icub3d.github.io/post/go-cross-compilers-linux/" />
+  <link rel="alternate" href="https://icub3d.github.io/index.xml" type="application/rss+xml" title="Non Impediti Ratione Cogitationis">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.css" integrity="sha384-wITovz90syo1dJWVh32uuETPVEtGigN07tkttEqPv+uR2SE/mbQcG7ATL28aI9H0" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://icub3d.github.io/css/main.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" />
+  <link rel="stylesheet" href="https://icub3d.github.io/css/pygment_highlights.css" />
+  <link rel="stylesheet" href="https://icub3d.github.io/css/highlight.min.css" />
+
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'UA-37698200-1', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='//www.google-analytics.com/analytics.js'></script>
+
+</head>
+
+  <body>
+    <nav class="navbar navbar-default navbar-fixed-top navbar-custom">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="https://icub3d.github.io/">Non Impediti Ratione Cogitationis</a>
+    </div>
+
+    <div class="collapse navbar-collapse" id="main-navbar">
+      <ul class="nav navbar-nav navbar-right">
+        
+
+        
+
+        
+      </ul>
+    </div>
+
+    <div class="avatar-container">
+      <div class="avatar-img-border">
+        
+      </div>
+    </div>
+
+  </div>
+</nav>
+
+
+
+
+    
+  
+  
+  
+
+
+
+
+  
+
+  <header class="header-section ">
+    
+    <div class="intro-header no-img">
+      
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+            <div class="post-heading">
+              <h1>Cross Compiling Go Applications</h1>
+                
+                
+                  <span class="post-meta">
+  Posted on January 31, 2013
+  
+</span>
+
+
+                
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+
+    
+<div class="container">
+  <div class="row">
+    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+      <article role="main" class="blog-post">
+        <p>In a recent discussion on
+<a href="https://plus.google.com/communities/114112804251407510571">Go&rsquo;s Google Plus Community</a>,
+some questions came up about cross compiling. In a default
+installation of <a href="http://golang.org/">Go</a>, cross compiling is not
+enabled. It only builds to toolchains for your current operating
+system and architecture. Since all of my computers are <em>amd64</em>, but
+some of the applications I build need to run on <em>i386</em>, I thought I&rsquo;d
+share how I go about doing it.</p>
+
+<p>I use <a href="https://www.archlinux.org/">Arch</a> linux, so I have provided a
+package in
+<a href="https://aur.archlinux.org/packages/go-cross-compilers-linux/">AUR</a>
+for doing this. It makes setup extremely simply. You can install the
+package by doing the following:</p>
+
+<pre><code>$ wget https://aur.archlinux.org/packages/go/go-cross-compilers-linux/PKGBUILD
+$ makepkg
+
+$ # For amd64
+$ sudo pacman -U go-cross-compilers-linux-1.0.3-1-x86_64.pkg.tar.xz
+
+$ # For i386
+$ sudo pacman -U go-cross-compilers-linux-1.0.3-1-i686.pkg.tar.xz
+</code></pre>
+
+<p>Now that the other toolchain is in place, we can make a sample program
+to test it out:</p>
+
+<pre><code>package main
+
+import (
+	&quot;fmt&quot;
+)
+
+func main() {
+	fmt.Println(&quot;Hello world!&quot;)
+}
+</code></pre>
+
+<p>If you were building it for your own architecture, something as simple
+as the following would work:</p>
+
+<pre><code>$ go build main.go
+$ ./main
+Hello world!
+</code></pre>
+
+<p>Building for the other architecture isn&rsquo;t much more difficult. Go will
+cross compile other operating systems and architectures based on the
+environmental variables <em>GOOS</em> and <em>GOOARCH</em>. In our case, we are
+interested in changing <em>GOARCH</em>:</p>
+
+<pre><code>$ GOARCH=386 go build main.go
+</code></pre>
+
+<p>Now you can copy main over your <em>i386</em> machine and run it! If you were
+cross compiling to <em>amd64</em>, you&rsquo;d simply replace <em>386</em> with <em>amd64</em>.</p>
+
+<p>One last interesting tidbit is that if you have a version of
+<a href="http://gcc.gnu.org/">gcc</a> that will cross compile, then Go
+applications that link to C libraries can also be used (despite what
+many people have suggested). In Arch, you can install a cross
+compiling version of <em>gcc</em> like this:</p>
+
+<pre><code>$ sudo pacman -S gcc-multilib
+</code></pre>
+
+<p>In this example, I&rsquo;m going to test a <a href="http://www.sqlite.org/">sqlite3</a>
+library, so let&rsquo;s install the 32-bit libraries:</p>
+
+<pre><code>$ sudo pacman -S lib32-sqlite
+</code></pre>
+
+<p>Now, we let&rsquo;s build a small app with the example from
+<a href="https://github.com/mattn/go-sqlite3">go-sqlite3</a>:</p>
+
+<pre><code>$ go get github.com/mattn/go-sqlite3
+$ mkdir testsql
+$ cd testsql
+$ wget https://raw.github.com/mattn/go-sqlite3/master/example/main.go
+
+$ # Test the program locally to make sure it works.
+$ go run main.go
+
+$ # Build for i386
+GOARCH=386 go build
+
+$ # Verify it's linked against the right libraries (lib32).
+$ ldd testsql
+	linux-gate.so.1 (0xf77ba000)
+	libsqlite3.so.0 =&gt; /usr/lib32/libsqlite3.so.0 (0xf76e2000)
+	libpthread.so.0 =&gt; /usr/lib32/libpthread.so.0 (0xf76c7000)
+	libc.so.6 =&gt; /usr/lib32/libc.so.6 (0xf7516000)
+	libdl.so.2 =&gt; /usr/lib32/libdl.so.2 (0xf7511000)
+	/lib/ld-linux.so.2 (0xf77bb000)
+
+$ # Test is on i386.
+scp testsql jmarsh@i386-box:
+ssh jmarsh@i386-box
+./testsql﻿
+</code></pre>
+
+<p>Obviously this could all be alleviated by using virtual machines, but
+the ability of the go toolchain to do this on a single system is
+really powerful. I can&rsquo;t begin to express how useful this is on many
+of the projects I&rsquo;ve worked on. I&rsquo;m always looking to improve, so if
+you can see ways to improve my PKGBUILD file or if you&rsquo;ve found a
+simpler way to do something, let me know.</p>
+
+      </article>
+
+      <ul class="pager blog-pager">
+        
+          <li class="previous">
+            <a href="https://icub3d.github.io/post/goblog/" data-toggle="tooltip" data-placement="top" title="Colds, Static Blogs, and Go">&larr; Previous Post</a>
+          </li>
+        
+        
+          <li class="next">
+            <a href="https://icub3d.github.io/post/hardcore-google-unit-testing/" data-toggle="tooltip" data-placement="top" title="Hardcore Google - Unit Testing App Engine">Next Post &rarr;</a>
+          </li>
+        
+      </ul>
+
+      
+
+    </div>
+  </div>
+</div>
+
+    <footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <ul class="list-inline text-center footer-links">
+          
+          
+        </ul>
+        <p class="credits copyright text-muted">
+          
+          &nbsp;&bull;&nbsp;
+          2016
+
+          
+            &nbsp;&bull;&nbsp;
+            <a href="https://icub3d.github.io/">Non Impediti Ratione Cogitationis</a>
+          
+        </p>
+        
+        <p class="credits theme-by text-muted">
+          <a href="http://gohugo.io">Hugo v0.21</a> powered &nbsp;&bull;&nbsp; Theme by <a href="http://deanattali.com/beautiful-jekyll/">Beautiful Jekyll</a> adapted to <a href="https://github.com/halogenica/beautifulhugo">Beautiful Hugo</a>
+          
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.js" integrity="sha384-/y1Nn9+QQAipbNQWU65krzJralCnuOasHncUFXGkdwntGeSvQicrYkiUBwsgUqc1" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/contrib/auto-render.min.js" integrity="sha384-dq1/gEHSxPZQ7DdrM82ID4YVol9BYyU7GbWlIwnwyPzotpoc57wDw/guX8EaYGPx" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="https://icub3d.github.io/js/main.js"></script>
+<script src="https://icub3d.github.io/js/highlight.min.js"></script>
+<script> hljs.initHighlightingOnLoad(); </script>
+<script> renderMathInElement(document.body); </script>
+
+
+
+
+
+  </body>
+</html>
+
